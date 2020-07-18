@@ -1,5 +1,7 @@
 package org.minibus.aqa.core.common.env;
 
+import org.apache.commons.lang3.NotImplementedException;
+
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -15,7 +17,7 @@ public interface Config {
         String property = initProperty(key, DEFAULT);
 
         if (property.equals(DEFAULT) && isMandatory) {
-            throw new RuntimeException(key.toString() + " property is mandatory");
+            throw new NotImplementedException(String.format("'%s' property is mandatory and needed to be specified", key.toString()));
         }
 
         return property;

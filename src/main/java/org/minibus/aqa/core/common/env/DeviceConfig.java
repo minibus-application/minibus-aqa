@@ -1,66 +1,72 @@
 package org.minibus.aqa.core.common.env;
 
-import org.minibus.aqa.Constants;
+import io.appium.java_client.remote.MobilePlatform;
+import org.minibus.aqa.core.common.cli.AdbCommandExecutor;
 import org.minibus.aqa.core.helpers.ResourceHelper;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
 
 public class DeviceConfig implements Config {
 
     private Properties config;
-    private Properties commonConfig;
-    private Properties mergedConfig;
 
-    private String deviceName;
-    private String deviceEngine;
-    private String devicePlatform;
-    private String devicePlatformVersion;
+    private String name;
+    private String udid;
+    private String engine;
+    private String platform;
+    private String platformVersion;
     private boolean isEmulated;
     private boolean toReset;
-    private boolean toFullReset;
+    private boolean toUninstallApp;
+    private boolean grantPermissions;
+    private boolean autoLaunchApp;
     private String appFileName;
+    private String appPath;
     private String appActivity;
     private String appPackage;
     private String adbHost;
     private int adbPort;
-
-    private int emulatorLaunchTimeout;
-    private int emulatorReadyTimeout;
-    private boolean emulatorIsHeadless;
-    private List<String> emulatorArgs;
+    private int avdLaunchTimeout;
+    private int avdReadyTimeout;
+    private boolean avdIsHeadless;
+    private String avdArgs;
 
     private int newCommandTimeout;
     private boolean enableEventTimings;
     private boolean clearGeneratedFiles;
 
-    public DeviceConfig(String fileName) {
-        commonConfig = ResourceHelper.getInstance().loadProperties(DIR, "common_" + DIR);
-        mergedConfig = new Properties(commonConfig);
+    public DeviceConfig() {
+        config = ResourceHelper.getInstance().loadProperties(DIR, "device");
 
-        if (fileName != null) {
-            mergedConfig.putAll(config = ResourceHelper.getInstance().loadProperties(DIR, fileName));
-        }
+        isEmulated = Boolean.valueOf(initProperty(Key.DEVICE_EMULATED, true));
+        engine = initProperty(Key.DEVICE_ENGINE, "UiAutomator2");
+        platform = initProperty(Key.DEVICE_PLATFORM, MobilePlatform.ANDROID).toLowerCase();
+        platformVersion = initProperty(Key.DEVICE_PLATFORM_VERSION);
 
-        isEmulated = Boolean.valueOf(initProperty(Key.DEVICE_EMULATED, "false"));
+        // physical android device serial number or android emulator name given while creating
+        // if not defined, appium will use platform version as the point to find plugged device
+        udid = initProperty(Key.DEVICE_UDID, true);
+        // on android this property is currently ignored, thought it remains required for appium
+        // so, this property only matters in sense of running on ios simulators
+        name = initProperty(Key.DEVICE_NAME, platform);
+
         if (isEmulated) {
-            emulatorLaunchTimeout = Integer.valueOf(initProperty(Key.AVD_LAUNCH_TIMEOUT, "60"));
-            emulatorReadyTimeout = Integer.valueOf(initProperty(Key.AVD_READY_TIMEOUT, "60"));
-            emulatorIsHeadless = Boolean.valueOf(initProperty(Key.AVD_HEADLESS, "false"));
-            emulatorArgs = Arrays.asList(initProperty(Key.AVD_ARGS, "false").split(Constants.PROPERTIES_DELIMITER));
+            avdLaunchTimeout = Integer.valueOf(initProperty(Key.AVD_LAUNCH_TIMEOUT, "60"));
+            avdReadyTimeout = Integer.valueOf(initProperty(Key.AVD_READY_TIMEOUT, "60"));
+            avdIsHeadless = Boolean.valueOf(initProperty(Key.AVD_HEADLESS, "false"));
+            avdArgs = initProperty(Key.AVD_ARGS, "false");
         }
 
-        deviceName = initProperty(Key.DEVICE_NAME);
-        deviceEngine = initProperty(Key.DEVICE_ENGINE);
-        devicePlatform = initProperty(Key.DEVICE_PLATFORM);
-        devicePlatformVersion = initProperty(Key.DEVICE_PLATFORM_VERSION);
+        grantPermissions = Boolean.parseBoolean(initProperty(Key.DEVICE_GRANT_PERMISSIONS, "true"));
+        autoLaunchApp = Boolean.parseBoolean(initProperty(Key.APP_AUTO_LAUNCH, "false"));
+        toReset = Boolean.valueOf(initProperty(Key.APP_RESET, "false"));
+        toUninstallApp = Boolean.valueOf(initProperty(Key.APP_UNINSTALL, "false"));
 
-        toReset = Boolean.valueOf(initProperty(Key.DEVICE_TO_RESET, "false"));
-        toFullReset = Boolean.valueOf(initProperty(Key.DEVICE_TO_FULL_RESET, "false"));
         appFileName = initProperty(Key.APP_FILE_NAME);
+        appPath = ResourceHelper.getInstance().getResourceFile("apps", appFileName).getAbsolutePath();
         appActivity = initProperty(Key.APP_ACTIVITY);
         appPackage = initProperty(Key.APP_PACKAGE);
+
         adbHost = initProperty(Key.ADB_HOST, "localhost");
         adbPort = Integer.valueOf(initProperty(Key.ADB_PORT, "5037"));
 
@@ -72,27 +78,39 @@ public class DeviceConfig implements Config {
 
     @Override
     public Properties getConfig() {
-        return mergedConfig;
+        return config;
     }
 
-    public String getAbsoluteAppPath() {
-        return ResourceHelper.getInstance().getResourceFile("apps", getAppFileName()).getAbsolutePath();
+    public String getAppPath() {
+        return appPath;
     }
 
-    public String getDeviceName() {
-        return deviceName;
+    public String getName() {
+        return name;
     }
 
-    public String getDeviceEngine() {
-        return deviceEngine;
+    public String getEngine() {
+        return engine;
     }
 
-    public String getDevicePlatform() {
-        return devicePlatform;
+    public String getPlatform() {
+        return platform;
     }
 
-    public String getDevicePlatformVersion() {
-        return devicePlatformVersion;
+    public String getPlatformVersion() {
+        return platformVersion;
+    }
+
+    public String getUdid() {
+        return udid;
+    }
+
+    public boolean isGrantPermissions() {
+        return grantPermissions;
+    }
+
+    public boolean isAutoLaunchApp() {
+        return autoLaunchApp;
     }
 
     public boolean isEmulated() {
@@ -103,8 +121,8 @@ public class DeviceConfig implements Config {
         return toReset;
     }
 
-    public boolean toFullReset() {
-        return toFullReset;
+    public boolean toUninstallApp() {
+        return toUninstallApp;
     }
 
     public String getAppFileName() {
@@ -127,26 +145,20 @@ public class DeviceConfig implements Config {
         return adbPort;
     }
 
-    public int getEmulatorLaunchTimeout() {
-        return emulatorLaunchTimeout;
+    public int getAvdLaunchTimeout() {
+        return avdLaunchTimeout;
     }
 
-    public int getEmulatorReadyTimeout() {
-        return emulatorReadyTimeout;
+    public int getAvdReadyTimeout() {
+        return avdReadyTimeout;
     }
 
     public boolean isHeadless() {
-        return emulatorIsHeadless;
+        return avdIsHeadless;
     }
 
-    public List<String> getEmulatorArgs() {
-        return emulatorArgs;
-    }
-
-    public String getEmulatorArgsAsString() {
-        return getEmulatorArgs().stream()
-                .reduce((argsString, arg) -> argsString + " " + arg)
-                .get();
+    public String getAvdArgs() {
+        return avdArgs;
     }
 
     public int getNewCommandTimeout() {
@@ -163,28 +175,29 @@ public class DeviceConfig implements Config {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName()
-                + Constants.NEW_LINE
-                + config.toString().replace(", ", Constants.NEW_LINE);
+        return stringify();
     }
 
     public enum Key {
         DEVICE_NAME("device.name"),
+        DEVICE_UDID("device.udid"),
+        DEVICE_GRANT_PERMISSIONS("device.grantPermissions"),
         DEVICE_ENGINE("device.engine"),
         DEVICE_PLATFORM("device.platform"),
         DEVICE_PLATFORM_VERSION("device.platform.ver"),
         DEVICE_EMULATED("device.emulated"),
-        DEVICE_TO_RESET("device.reset"),
-        DEVICE_TO_FULL_RESET("device.reset.full"),
+        APP_RESET("device.app.reset"),
+        APP_UNINSTALL("device.app.uninstall"),
         APP_FILE_NAME("device.app.file"),
         APP_ACTIVITY("device.app.activity"),
         APP_PACKAGE("device.app.package"),
+        APP_AUTO_LAUNCH("device.app.autoLaunch"),
         ADB_HOST("device.adb.host"),
         ADB_PORT("device.adb.port"),
-        AVD_LAUNCH_TIMEOUT("device.emulated.launchTimeout"),
-        AVD_READY_TIMEOUT("device.emulated.readyTimeout"),
-        AVD_HEADLESS("device.emulated.headless"),
-        AVD_ARGS("device.emulated.args"),
+        AVD_LAUNCH_TIMEOUT("device.avd.launchTimeout"),
+        AVD_READY_TIMEOUT("device.avd.readyTimeout"),
+        AVD_HEADLESS("device.avd.headless"),
+        AVD_ARGS("device.avd.args"),
         CLIENT_NEW_COMMAND_TIMEOUT("client.newCommandTimeout"),
         CLIENT_EVENT_TIMINGS("client.eventTimings"),
         CLIENT_CLEAR_GENERATED_FILES("client.clearGeneratedFiles");

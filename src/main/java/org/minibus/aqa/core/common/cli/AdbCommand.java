@@ -1,9 +1,13 @@
 package org.minibus.aqa.core.common.cli;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public interface AdbCommand {
 
     String ADB = "adb";
     String SHELL = "shell";
+    String GETPROP = "getprop";
     String SCREENCAP = "screencap";
     String DEVICES = "devices";
     String PULL = "pull";
@@ -41,9 +45,20 @@ public interface AdbCommand {
         UNDEFINED("null");
 
         private String state;
+        private static final Map<String, DeviceState> lookup = new HashMap<>();
+
+        static {
+            for (DeviceState d : DeviceState.values()) {
+                lookup.put(d.get(), d);
+            }
+        }
 
         DeviceState(String state) {
             this.state = state;
+        }
+
+        public static DeviceState get(String value) {
+            return lookup.get(value);
         }
 
         public String get() {

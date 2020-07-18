@@ -1,9 +1,8 @@
-package org.minibus.aqa.core.common;
+package org.minibus.aqa.core.common.env;
 
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.service.local.AppiumDriverLocalService;
 import io.appium.java_client.service.local.AppiumServiceBuilder;
-import org.minibus.aqa.core.common.env.Environment;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
 import java.net.URL;

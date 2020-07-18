@@ -26,7 +26,7 @@ public class Environment {
 
         // domainConfig = new DomainConfig();
         appiumConfig = new AppiumConfig();
-        deviceConfig = new DeviceConfig(System.getProperty("device.config"));
+        deviceConfig = new DeviceConfig();
     }
 
     public static Environment getInstance() {

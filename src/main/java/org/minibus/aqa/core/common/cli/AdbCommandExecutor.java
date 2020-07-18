@@ -38,6 +38,11 @@ public class AdbCommandExecutor extends ShellCommandExecutor implements AdbComma
         return new File(fileDestination);
     }
 
+    public static boolean isDeviceConnected(String udid) {
+        List<String> connectedDevices = getDevices(DeviceState.ONLINE);
+        return connectedDevices.contains(udid);
+    }
+
     public static int getDevicesCount() {
         String out = exec(ADB, DEVICES).getOutput();
 
@@ -91,13 +96,13 @@ public class AdbCommandExecutor extends ShellCommandExecutor implements AdbComma
     }
 
     public static DeviceState getDeviceState(String udid) {
-        String state = adb(udid, STATE).getOutput();
+        String state = adb(udid, STATE)
+                .getOutput()
+                .replace("\n", "")
+                .trim();
 
-        try {
-            return DeviceState.valueOf(state);
-        } catch (IllegalArgumentException e) {
-            return DeviceState.UNDEFINED;
-        }
+        DeviceState deviceState = DeviceState.get(state);
+        return deviceState != null ? deviceState : DeviceState.UNDEFINED;
     }
 
     public static String getDeviceInfo(DeviceInfo info) {
@@ -111,6 +116,13 @@ public class AdbCommandExecutor extends ShellCommandExecutor implements AdbComma
         } else {
             return "null";
         }
+    }
+
+    public static String getDeviceVersion(String udid) {
+        return adb(udid, SHELL, GETPROP, "ro.build.version.release")
+                .getOutput()
+                .replace("\n", "")
+                .trim();
     }
 
     public static boolean startAdbd() {
