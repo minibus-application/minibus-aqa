@@ -15,6 +15,7 @@ public interface AdbCommand {
         USB("usb"),
         PRODUCT("product"),
         MODEL("model"),
+        TRANSPORT_ID("transport_id"),
         DEVICE("device");
 
         private String info;

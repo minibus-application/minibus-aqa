@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 public class AdbCommandExecutor extends ShellCommandExecutor implements AdbCommand {
 
     private static final String DEFAULT_ADB_DEVICES_PATTERN = "([a-zA-Z0-9\\\\-]+)\\t(%s)";
+    private static final String DEFAULT_ADB_INFO_PATTERN = "%s:(\\S+|$)";
 
     public static File takeScreenshot() {
         return takeScreenshot(null);
@@ -96,6 +97,19 @@ public class AdbCommandExecutor extends ShellCommandExecutor implements AdbComma
             return DeviceState.valueOf(state);
         } catch (IllegalArgumentException e) {
             return DeviceState.UNDEFINED;
+        }
+    }
+
+    public static String getDeviceInfo(DeviceInfo info) {
+        String out = exec(ADB, DEVICES, "-l").getOutput();
+
+        Pattern pattern = Pattern.compile(String.format(DEFAULT_ADB_INFO_PATTERN, info.get()));
+        Matcher matcher = pattern.matcher(out);
+
+        if (matcher.find()) {
+            return matcher.group(1);
+        } else {
+            return "null";
         }
     }
 

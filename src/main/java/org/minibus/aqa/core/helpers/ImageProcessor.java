@@ -12,7 +12,7 @@ import java.io.*;
 
 public class ImageProcessor {
 
-    public static boolean containsColor(MobileElement element, ImageColor color, ImageRegion region) {
+    public static boolean isOfColor(MobileElement element, ImageColor color, ImageRegion region) {
         BufferedImage image = getElementBufferedImage(element);
         int width = image.getWidth();
         int height = image.getHeight();
@@ -35,10 +35,10 @@ public class ImageProcessor {
                 break;
         }
 
-        return containsColor(image, color);
+        return isOfColor(image, color);
     }
 
-    public static boolean containsColor(BufferedImage image, ImageColor color) {
+    public static boolean isOfColor(BufferedImage image, ImageColor color) {
         int width = image.getWidth();
         int height = image.getHeight();
 
@@ -62,12 +62,12 @@ public class ImageProcessor {
         return colorMatchesWithinImage != 0 && (colorMatchesWithinImage >= totalColoredPixels / 2);
     }
 
-    public static boolean containsColor(MobileElement element, ImageColor color) {
-        return containsColor(getElementBufferedImage(element), color);
+    public static boolean isOfColor(MobileElement element, ImageColor color) {
+        return isOfColor(getElementBufferedImage(element), color);
     }
 
-    public static boolean containsColor(MobileElement element, String hexColor) {
-        return containsColor(element, getPureColor(Color.decode(hexColor).getRGB()));
+    public static boolean isOfColor(MobileElement element, String hexColor) {
+        return isOfColor(element, getPureColor(Color.decode(hexColor).getRGB()));
     }
 
     public static File getElementScreenshot(MobileElement element) {
