@@ -1,70 +1,111 @@
 package org.minibus.aqa.core.common.env.device;
 
-import io.appium.java_client.AppiumDriver;
-import org.minibus.aqa.core.common.env.Config;
+import io.appium.java_client.android.AndroidDriver;
+import io.appium.java_client.remote.AndroidMobileCapabilityType;
+import io.appium.java_client.remote.MobileCapabilityType;
+import org.apache.commons.io.FileUtils;
+import org.minibus.aqa.Constants;
+import org.minibus.aqa.core.common.cli.AdbCommandExecutor;
+import org.minibus.aqa.core.common.env.DeviceConfig;
+import org.minibus.aqa.core.common.env.Environment;
+import org.minibus.aqa.core.helpers.RandomGenerator;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.WebDriverException;
+import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 
-public interface Device {
+public class Device {
 
-    AppiumDriver initDriver(URL serverUrl, DesiredCapabilities capabilities);
+    private static AndroidDriver driver;
+    private DeviceConfig config;
+    private DesiredCapabilities capabilities;
 
-    AppiumDriver getDriver();
+    public Device(DeviceConfig config) {
+        this.config = config;
 
-    Config getConfig();
+        capabilities = new DesiredCapabilities();
 
-    DesiredCapabilities getCapabilities();
+        if (config.isEmulated()) {
+            capabilities.setCapability(AndroidMobileCapabilityType.AVD, config.getDeviceName());
+            capabilities.setCapability(AndroidMobileCapabilityType.AVD_LAUNCH_TIMEOUT, config.getEmulatorLaunchTimeout());
+            capabilities.setCapability(AndroidMobileCapabilityType.AVD_READY_TIMEOUT, config.getEmulatorReadyTimeout());
+            capabilities.setCapability(AndroidMobileCapabilityType.AVD_ARGS, config.getEmulatorArgsAsString());
+        } else {
+            capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, config.getDeviceName());
+        }
 
-    default boolean installApp(String appPath) {
-        getDriver().installApp(appPath);
-        return isAppInstalled(appPath);
+        capabilities.setCapability(MobileCapabilityType.NEW_COMMAND_TIMEOUT, config.getNewCommandTimeout());
+        capabilities.setCapability(MobileCapabilityType.EVENT_TIMINGS, config.enableEventTimings());
+        capabilities.setCapability(MobileCapabilityType.CLEAR_SYSTEM_FILES, config.clearGeneratedFiles());
+
+        capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, config.getDeviceName());
+        capabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, config.getDevicePlatformVersion());
+        capabilities.setCapability(CapabilityType.PLATFORM_NAME, config.getDevicePlatform());
+        capabilities.setCapability(MobileCapabilityType.AUTOMATION_NAME, config.getDeviceEngine());
+        capabilities.setCapability(MobileCapabilityType.APP, config.getAbsoluteAppPath());
+        capabilities.setCapability(AndroidMobileCapabilityType.APP_PACKAGE, config.getAppPackage());
+        capabilities.setCapability(AndroidMobileCapabilityType.APP_ACTIVITY, config.getAppActivity());
     }
 
-    default boolean isAppInstalled(String appPath) {
-        return getDriver().isAppInstalled(appPath);
+    public AndroidDriver initDriver() {
+        return initDriver(Environment.getInstance().getAppiumConfig().getAppiumUrl(), capabilities);
     }
 
-    default void openTestApp(String appPath) {
-        getDriver().launchApp();
+    public AndroidDriver initDriver(URL serverUrl, DesiredCapabilities capabilities) {
+        driver = new AndroidDriver(serverUrl, capabilities);
+        return driver;
     }
 
-    void closeApp();
-    void sendAppBackground();
-    void resetApp();
-    void removeApp();
-    void terminateApp();
-    void getAppState();
-    void getCurrentActivity();
-    void getCurrentPackage();
-    void startActivity();
-    void setClipboard();
-    void getClipboard();
+    public DesiredCapabilities getCapabilities() {
+        return capabilities;
+    }
 
-//    void powerAc();
-//    void powerCapacity();
+    public static AndroidDriver getDriver() {
+        return driver;
+    }
 
-    void pushFile();
-    void pullFile();
-    void pullFolder();
+    public DeviceConfig getConfig() {
+        return config;
+    }
 
-    void lock();
-    void unlock();
-    void isLocked();
-    void rotate();
+    public int getAdbPort() {
+        return config.getAdbPort();
+    }
 
-    void sendKeycode();
-    void sendLongKeycode();
-    void hideKeyboard();
-    void isKeyboardShown();
+    public String getAdbHost() {
+        return config.getAdbHost();
+    }
 
-    void toggleAirplaneMode();
-    void toggleData();
-    void toggleWifi();
-    void toggleLocationServices();
+    public boolean isEmulated() {
+        return config.isEmulated();
+    }
 
-    void startScreenRecording();
-    void stopScreenRecording();
+    public static synchronized File getScreenshot() {
+        try {
+            File screenshot = driver.getScreenshotAs(OutputType.FILE);
+            File localFile = new File(Constants.PROJECT_TEMP_FOLDER + RandomGenerator.temp());
+            FileUtils.copyFile(screenshot, localFile);
+            return localFile;
+        } catch (WebDriverException | IOException e) {
+            String udid = (String) driver.getSessionDetails().get("deviceUDID");
+            String deviceFilePath = AdbCommandExecutor.takeScreenshot(udid).getAbsolutePath();
+            return AdbCommandExecutor.pull(deviceFilePath);
+        }
+    }
 
-//    void setNetworkSpeed();
+    static {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            if (driver != null) {
+                try {
+                    driver.quit();
+                } catch (Exception ignore) {
+                    // ignore
+                }
+            }
+        }));
+    }
 }

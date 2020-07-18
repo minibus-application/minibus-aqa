@@ -1,7 +1,7 @@
 package org.minibus.aqa.core.common.env;
 
 import org.minibus.aqa.Constants;
-import org.minibus.aqa.core.common.env.device.PhysicalDevice;
+import org.minibus.aqa.core.common.env.device.Device;
 import org.minibus.aqa.core.helpers.ResourceHelper;
 
 public class Environment {
@@ -10,7 +10,6 @@ public class Environment {
     private AppiumConfig appiumConfig;
     // private DomainConfig domainConfig;
     private DeviceConfig deviceConfig;
-    private PhysicalDevice device;
 
     private String systemArchitecture;
     private String systemName;
@@ -31,7 +30,9 @@ public class Environment {
     }
 
     public static Environment getInstance() {
-        if (instance == null) instance = new Environment();
+        if (instance == null) {
+            instance = new Environment();
+        }
         return instance;
     }
 
@@ -41,10 +42,6 @@ public class Environment {
 
     public DeviceConfig getDeviceConfig() {
         return deviceConfig;
-    }
-
-    public PhysicalDevice getDevice() {
-        return device;
     }
 
     public String getSystemArchitecture() {

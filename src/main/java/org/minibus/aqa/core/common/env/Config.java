@@ -1,24 +1,20 @@
 package org.minibus.aqa.core.common.env;
 
-import org.minibus.aqa.Constants;
-
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
 public interface Config {
 
-    String FILE_POSTFIX = "_config";
+    String DIR = "config";
+    String DEFAULT = "N/A";
 
-    default Map<String, String> getPropertiesMap(Properties properties) {
-        return properties.entrySet().stream()
-                .collect(Collectors.toMap(k -> (String) k.getKey(), e -> (String) e.getValue()));
-    }
+    Properties getConfig();
 
     default String initProperty(Enum<?> key, boolean isMandatory) {
-        String property = initProperty(key, Constants.NOT_ASSIGNED);
+        String property = initProperty(key, DEFAULT);
 
-        if (property.equals(Constants.NOT_ASSIGNED) && isMandatory) {
+        if (property.equals(DEFAULT) && isMandatory) {
             throw new RuntimeException(key.toString() + " property is mandatory");
         }
 
@@ -26,16 +22,42 @@ public interface Config {
     }
 
     default String initProperty(Enum<?> key) {
-        return initProperty(key, Constants.NOT_ASSIGNED);
+        return initProperty(key, DEFAULT);
     }
 
     default String initProperty(Enum<?> key, String def) {
-        String configProperty = getConfig().getProperty(key.toString(), def);
-        String property = System.getProperty(key.toString(), configProperty);
-        if (!property.equals(configProperty)) getConfig().setProperty(key.toString(), property);
+        return initProperty(key.toString(), def);
+    }
+
+    default String initProperty(String key) {
+        return initProperty(key, DEFAULT);
+    }
+
+    default String initProperty(String key, String def) {
+        String configProperty = getConfig().getProperty(key, def);
+        String property = System.getProperty(key, configProperty);
+
+        if (!property.equals(configProperty) || !configProperty.equals(DEFAULT)) {
+            getConfig().setProperty(key, property);
+        }
 
         return property;
     }
 
-    Properties getConfig();
+    default boolean isDefined(Enum<?> key) {
+        return isDefined(key.toString());
+    }
+
+    default boolean isDefined(String key) {
+        Object value = initProperty(key);
+        return value != null && !value.equals(DEFAULT);
+    }
+
+    default String stringify() {
+        return getConfig().entrySet().stream()
+                .filter(o -> !o.getValue().equals(DEFAULT))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
+                .toString()
+                .replace(", ", "\n");
+    }
 }

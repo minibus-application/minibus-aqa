@@ -10,7 +10,6 @@ import org.testng.annotations.BeforeSuite;
 
 public abstract class BaseTest {
 
-    private BaseDevice device;
     private Environment environment;
     private AppiumConfig appiumConfig;
     private DeviceConfig deviceConfig;
@@ -25,24 +24,21 @@ public abstract class BaseTest {
             AppiumLocalManager.getInstance().createServiceDefault().start();
         }
 
-        device = DeviceFactory.create(deviceConfig);
+        new Device(deviceConfig).initDriver();
 
         // todo with logback
-        System.out.println(appiumConfig.toString());
-        System.out.println(device.getCapabilities().toString());
-    }
-
-    protected BaseDevice getDevice() {
-        return device;
+        // System.out.println(appiumConfig.toString());
     }
 
     @AfterSuite(alwaysRun = true)
     public void afterSuite () {
-        getDevice().getDriver().closeApp();
-        getDevice().getDriver().quit();
+        Device.getDriver().closeApp();
+        Device.getDriver().quit();
 
         if (!appiumConfig.isStandalone()) {
-            AppiumLocalManager.getInstance().terminate();
+            if (AppiumLocalManager.getInstance().isRunning()) {
+                AppiumLocalManager.getInstance().terminate();
+            }
         }
     }
 }

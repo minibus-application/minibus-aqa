@@ -11,8 +11,6 @@ import java.util.Properties;
 
 public class AppiumConfig implements Config {
 
-    private static final String FILE_NAME = "appium" + FILE_POSTFIX;
-
     private Properties config;
     private int commandTimeout;
     private Boolean eventTimings;
@@ -24,7 +22,7 @@ public class AppiumConfig implements Config {
     private Boolean isStandalone;
 
     public AppiumConfig() {
-        config = ResourceHelper.getInstance().loadProperties(FILE_NAME);
+        config = ResourceHelper.getInstance().loadProperties("appium_" + DIR);
 
         isStandalone = Boolean.valueOf(initProperty(Key.STANDALONE, "false"));
         if (isStandalone) {

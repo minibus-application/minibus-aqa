@@ -1,20 +1,33 @@
 package org.minibus.aqa.core.common.cli;
 
 
+import org.apache.commons.lang3.StringUtils;
 import org.minibus.aqa.Constants;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 public class ShellCommandExecutor {
 
-    public static LocalProcess exec(String... commandParts) {
+    public static LocalProcess exec(String cmd) {
+        Process process = null;
+        try {
+            process = Runtime.getRuntime().exec(cmd);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new LocalProcess(process);
+    }
+
+    public static LocalProcess exec(String... cmdParts) {
         ProcessBuilder processBuilder = new ProcessBuilder();
         Process process = null;
 
         try {
-            processBuilder.command(commandParts);
+            processBuilder.command(cmdParts);
             process = processBuilder.start();
         } catch (IOException e) {
             e.printStackTrace();
@@ -45,12 +58,11 @@ public class ShellCommandExecutor {
             return output.toString();
         }
 
-        public int waitForEnd() {
+        public int waitFor() {
             try {
                 exitCode = process.waitFor();
             } catch(InterruptedException e) {
                 exitCode = 1;
-                // fail to run
             }
             return exitCode;
         }
@@ -64,8 +76,16 @@ public class ShellCommandExecutor {
         }
 
         public boolean isSucceeded() {
-            return getExitCode() == 0;
+            return exitCode == 0;
         }
+    }
+
+    public static boolean isProcessExist(String process) {
+        Optional<ProcessHandle> processHandleOptional = ProcessHandle.allProcesses()
+                .filter(p -> StringUtils.containsIgnoreCase(p.info().command().get(), process) && p.isAlive())
+                .findFirst();
+
+        return processHandleOptional.isPresent();
     }
 
     public enum ShellType {

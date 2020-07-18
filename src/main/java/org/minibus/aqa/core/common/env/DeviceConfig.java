@@ -3,14 +3,11 @@ package org.minibus.aqa.core.common.env;
 import org.minibus.aqa.Constants;
 import org.minibus.aqa.core.helpers.ResourceHelper;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
 public class DeviceConfig implements Config {
-
-    private static final String COMMON_FILE_NAME = "common" + FILE_POSTFIX;
 
     private Properties config;
     private Properties commonConfig;
@@ -39,13 +36,11 @@ public class DeviceConfig implements Config {
     private boolean clearGeneratedFiles;
 
     public DeviceConfig(String fileName) {
-        // config = ResourceHelper.getInstance().loadProperties(FILE_NAME);
-
-        commonConfig = ResourceHelper.getInstance().loadProperties(COMMON_FILE_NAME);
+        commonConfig = ResourceHelper.getInstance().loadProperties(DIR, "common_" + DIR);
         mergedConfig = new Properties(commonConfig);
 
         if (fileName != null) {
-            mergedConfig.putAll(config = ResourceHelper.getInstance().loadProperties(fileName));
+            mergedConfig.putAll(config = ResourceHelper.getInstance().loadProperties(DIR, fileName));
         }
 
         isEmulated = Boolean.valueOf(initProperty(Key.DEVICE_EMULATED, "false"));
@@ -53,7 +48,7 @@ public class DeviceConfig implements Config {
             emulatorLaunchTimeout = Integer.valueOf(initProperty(Key.AVD_LAUNCH_TIMEOUT, "60"));
             emulatorReadyTimeout = Integer.valueOf(initProperty(Key.AVD_READY_TIMEOUT, "60"));
             emulatorIsHeadless = Boolean.valueOf(initProperty(Key.AVD_HEADLESS, "false"));
-            emulatorArgs = Arrays.asList(initProperty(Key.AVD_ARGS, "false").split(Constants.PROPERTIES_DELIMETER));
+            emulatorArgs = Arrays.asList(initProperty(Key.AVD_ARGS, "false").split(Constants.PROPERTIES_DELIMITER));
         }
 
         deviceName = initProperty(Key.DEVICE_NAME);
@@ -81,7 +76,7 @@ public class DeviceConfig implements Config {
     }
 
     public String getAbsoluteAppPath() {
-        return ResourceHelper.getInstance().getResourceFilePath(getAppFileName());
+        return ResourceHelper.getInstance().getResourceFile("apps", getAppFileName()).getAbsolutePath();
     }
 
     public String getDeviceName() {
