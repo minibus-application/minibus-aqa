@@ -4,9 +4,11 @@ import io.appium.java_client.android.AndroidDriver;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.minibus.aqa.Constants;
+import org.minibus.aqa.core.common.cli.AdbCommand;
 import org.minibus.aqa.core.common.cli.AdbCommandExecutor;
 import org.minibus.aqa.core.common.env.DeviceConfig;
 import org.minibus.aqa.core.common.env.Environment;
+import org.minibus.aqa.core.common.handlers.TestLogger;
 import org.minibus.aqa.core.helpers.RandomGenerator;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.UnsupportedCommandException;
@@ -35,8 +37,13 @@ public class Device {
             if (config.isDefined(DeviceConfig.Key.DEVICE_UDID)) {
                 String passedUdid = config.getUdid();
 
+                TestLogger.get().info(String.format("Determining whether the device with udid=%s is connected or not", passedUdid));
                 if (AdbCommandExecutor.isDeviceConnected(passedUdid)) {
                     udid = config.getUdid();
+
+                    TestLogger.get().info(String.format("Device found: udid:%s version:%s %s", udid,
+                            AdbCommandExecutor.getDeviceVersion(udid),
+                            AdbCommandExecutor.getDeviceInfo(udid)));
 
                     capabilities.setCapability(config.isEmulated() ? AVD : UDID, udid);
 
@@ -79,13 +86,29 @@ public class Device {
         return initDriver(Environment.getInstance().getAppiumConfig().getAppiumUrl(), capabilities);
     }
 
-    public AndroidDriver initDriver(URL serverUrl, DesiredCapabilities capabilities) {
+    public synchronized AndroidDriver initDriver(URL serverUrl, DesiredCapabilities capabilities) {
+        TestLogger.get().info(String.format("Starting driver session on %s", serverUrl));
+
         driver = new AndroidDriver(serverUrl, capabilities);
+
+        TestLogger.get().info(String.format("Driver session has started, id=%s", driver.getSessionId().toString()));
         return driver;
     }
 
     public static AndroidDriver getDriver() {
         return driver;
+    }
+
+    public static boolean quit() {
+        if (driver != null) {
+            if (driver.getSessionId() != null) {
+                TestLogger.get().info(String.format("Closing driver session with id=%s", driver.getSessionId().toString()));
+                driver.closeApp();
+                driver.quit();
+            }
+            return true;
+        }
+        return false;
     }
 
     public static String getUdid() {
@@ -117,6 +140,7 @@ public class Device {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             if (driver != null) {
                 try {
+                    TestLogger.get().info(String.format("Terminating driver session with id=%s", driver.getSessionId().toString()));
                     driver.quit();
                 } catch (Exception ignore) {
                     // ignore

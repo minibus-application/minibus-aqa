@@ -10,6 +10,7 @@ public class Constants {
     public static final String PROPERTIES_DELIMITER = ";";
 
     public static final String PNG = "png";
+    public static final String NULL = "null";
 
     public static final String PROJECT_TEMP_FOLDER = PROJECT_DIR_PATH + "/target/tmp/";
     public static final String DEVICE_SDCARD = "/sdcard/";

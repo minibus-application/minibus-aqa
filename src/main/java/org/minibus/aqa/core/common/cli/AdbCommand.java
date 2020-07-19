@@ -1,5 +1,7 @@
 package org.minibus.aqa.core.common.cli;
 
+import org.minibus.aqa.Constants;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,7 +44,7 @@ public interface AdbCommand {
         ONLINE("device"),
         OFFLINE("offline"),
         UNPLUGGED("no device"),
-        UNDEFINED("null");
+        UNDEFINED(Constants.NULL);
 
         private String state;
         private static final Map<String, DeviceState> lookup = new HashMap<>();

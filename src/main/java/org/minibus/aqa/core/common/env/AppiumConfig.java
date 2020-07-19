@@ -2,6 +2,7 @@ package org.minibus.aqa.core.common.env;
 
 import org.apache.http.client.utils.URIBuilder;
 import org.minibus.aqa.Constants;
+import org.minibus.aqa.core.common.handlers.TestLogger;
 import org.minibus.aqa.core.helpers.ResourceHelper;
 
 import java.net.MalformedURLException;
@@ -12,20 +13,18 @@ import java.util.Properties;
 public class AppiumConfig implements Config {
 
     private Properties config;
+    private String host;
+    private int port;
+    private URL appiumUrl;
     private int commandTimeout;
     private Boolean eventTimings;
     private Boolean logPerformance;
     private Boolean clearGeneratedFilesOnEnd;
-    private String host;
-    private int port;
-    private URL appiumUrl;
-    private Boolean isStandalone;
 
     public AppiumConfig() {
-        config = ResourceHelper.getInstance().loadProperties("appium_" + DIR);
+        config = ResourceHelper.getInstance().loadProperties("appium");
 
-        isStandalone = Boolean.valueOf(initProperty(Key.STANDALONE, "false"));
-        if (isStandalone) {
+        if (isStandalone()) {
             host = initProperty(Key.HOST, true);
             port = Integer.valueOf(initProperty(Key.PORT, true));
 
@@ -72,7 +71,7 @@ public class AppiumConfig implements Config {
     }
 
     public Boolean isStandalone() {
-        return isStandalone;
+        return isDefined(Key.HOST) && isDefined(Key.PORT);
     }
 
     public URL getAppiumUrl() {
@@ -93,16 +92,9 @@ public class AppiumConfig implements Config {
         return this;
     }
 
-    public AppiumConfig setStandalone(Boolean standalone) {
-        isStandalone = standalone;
-        return this;
-    }
-
     @Override
     public String toString() {
-        return getClass().getSimpleName()
-                + Constants.NEW_LINE
-                + config.toString().replace(", ", Constants.NEW_LINE);
+        return stringify();
     }
 
     public enum Key {
@@ -111,8 +103,7 @@ public class AppiumConfig implements Config {
         LOG_PERFORMANCE("appium.performanceLogging"),
         CLEAR_GENERATED_FILES_ON_END("appium.clearGeneratedFiles.onEnd"),
         HOST("appium.host"),
-        PORT("appium.port"),
-        STANDALONE("appium.standalone");
+        PORT("appium.port");
 
         private final String key;
 

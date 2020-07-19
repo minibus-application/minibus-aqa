@@ -13,16 +13,17 @@ import java.util.stream.Collectors;
 
 public class AdbCommandExecutor extends ShellCommandExecutor implements AdbCommand {
 
-    private static final String DEFAULT_ADB_DEVICES_PATTERN = "([a-zA-Z0-9\\\\-]+)\\t(%s)";
-    private static final String DEFAULT_ADB_INFO_PATTERN = "%s:(\\S+|$)";
+    private static final String ADB_DEVICES_PATTERN = "([a-zA-Z0-9\\\\-]+)\\t%s\\b";
+    private static final String ADB_DEVICE_INFO_PATTERN = "(?:%s.*?)%s:(\\S+|$)";
+    private static final String ADB_ALL_DEVICE_INFO_PATTERN = "(?:%s\\s+.*?\\s+)(.*)";
 
     public static File takeScreenshot() {
         return takeScreenshot(null);
     }
 
     public static File takeScreenshot(String udid) {
-        String filePath = Constants.DEVICE_SDCARD + RandomGenerator.temp();
-        adb(udid, SHELL, SCREENCAP, filePath).waitFor();
+        String filePath = String.format("%s%s.%s", Constants.DEVICE_SDCARD, RandomGenerator.temp(), Constants.PNG);
+        adb(udid, SHELL, SCREENCAP, filePath);
 
         return new File(filePath);
     }
@@ -33,7 +34,7 @@ public class AdbCommandExecutor extends ShellCommandExecutor implements AdbComma
 
     public static File pull(String udid, String fileOrigin) {
         String fileDestination = Constants.PROJECT_TEMP_FOLDER;
-        adb(udid, PULL, fileOrigin, fileDestination).waitFor();
+        adb(udid, PULL, fileOrigin, fileDestination);
 
         return new File(fileDestination);
     }
@@ -44,7 +45,7 @@ public class AdbCommandExecutor extends ShellCommandExecutor implements AdbComma
     }
 
     public static int getDevicesCount() {
-        String out = exec(ADB, DEVICES).getOutput();
+        String out = exec(ADB, DEVICES).getRawStdout();
 
         Pattern pattern = Pattern.compile(getAdbDevicesPattern());
         Matcher matcher = pattern.matcher(out);
@@ -52,7 +53,7 @@ public class AdbCommandExecutor extends ShellCommandExecutor implements AdbComma
     }
 
     public static int getDevicesCount(DeviceState state) {
-        String out = exec(ADB, DEVICES).getOutput();
+        String out = exec(ADB, DEVICES).getRawStdout();
 
         Pattern pattern = Pattern.compile(getAdbDevicesPattern(state));
         Matcher matcher = pattern.matcher(out);
@@ -61,7 +62,7 @@ public class AdbCommandExecutor extends ShellCommandExecutor implements AdbComma
 
     public static List<String> getDevices() {
         List<String> matches = new ArrayList<>();
-        String out = exec(ADB, DEVICES).getOutput();
+        String out = exec(ADB, DEVICES).getRawStdout();
 
         Pattern pattern = Pattern.compile(getAdbDevicesPattern());
         Matcher matcher = pattern.matcher(out);
@@ -79,7 +80,7 @@ public class AdbCommandExecutor extends ShellCommandExecutor implements AdbComma
 
     public static List<String> getDevices(DeviceState state) {
         List<String> matches = new ArrayList<>();
-        String out = exec(ADB, DEVICES).getOutput();
+        String out = exec(ADB, DEVICES).getRawStdout();
 
         Pattern pattern = Pattern.compile(getAdbDevicesPattern(state));
         Matcher matcher = pattern.matcher(out);
@@ -97,7 +98,7 @@ public class AdbCommandExecutor extends ShellCommandExecutor implements AdbComma
 
     public static DeviceState getDeviceState(String udid) {
         String state = adb(udid, STATE)
-                .getOutput()
+                .getRawStdout()
                 .replace("\n", "")
                 .trim();
 
@@ -105,42 +106,52 @@ public class AdbCommandExecutor extends ShellCommandExecutor implements AdbComma
         return deviceState != null ? deviceState : DeviceState.UNDEFINED;
     }
 
-    public static String getDeviceInfo(DeviceInfo info) {
-        String out = exec(ADB, DEVICES, "-l").getOutput();
+    public static String getDeviceInfo(String udid, DeviceInfo info) {
+        String out = exec(ADB, DEVICES, "-l").getRawStdout();
 
-        Pattern pattern = Pattern.compile(String.format(DEFAULT_ADB_INFO_PATTERN, info.get()));
+        Pattern pattern = Pattern.compile(String.format(ADB_DEVICE_INFO_PATTERN, udid, info.get()));
         Matcher matcher = pattern.matcher(out);
 
         if (matcher.find()) {
             return matcher.group(1);
         } else {
-            return "null";
+            return Constants.NULL;
+        }
+    }
+
+    public static String getDeviceInfo(String udid) {
+        String out = exec(ADB, DEVICES, "-l").getRawStdout();
+
+        Pattern pattern = Pattern.compile(String.format(ADB_ALL_DEVICE_INFO_PATTERN, udid));
+        Matcher matcher = pattern.matcher(out);
+
+        if (matcher.find()) {
+            return matcher.group(1);
+        } else {
+            return Constants.NULL;
         }
     }
 
     public static String getDeviceVersion(String udid) {
         return adb(udid, SHELL, GETPROP, "ro.build.version.release")
-                .getOutput()
+                .getRawStdout()
                 .replace("\n", "")
                 .trim();
     }
 
     public static boolean startAdbd() {
-        LocalProcess p = exec(ADB, START_ADBD);
-        int ec = p.waitFor();
-        String out = p.getOutput();
+        ProcessResult processResult = exec(ADB, START_ADBD);
+        String out = processResult.getRawStdout();
 
-        return ec != 1 && (out.isEmpty() || out.contains("successfully"));
+        return processResult.getExitCode() != 1 && (out.isEmpty() || out.contains("successfully"));
     }
 
     public static boolean killAdbd() {
-        LocalProcess p = exec(ADB, KILL_ADBD);
-        int ec = p.waitFor();
-
-        return ec != 1 && !isProcessExist(ADB);
+        ProcessResult processResult = exec(ADB, KILL_ADBD);
+        return processResult.getExitCode() != 1 && !isAlive(ADB);
     }
 
-    private static LocalProcess adb(String udid, String... cmdParts) {
+    private static ProcessResult adb(String udid, String... cmdParts) {
         int devicesCount = getDevicesCount();
 
         if ((udid == null || udid.isEmpty()) && devicesCount == 1) {
@@ -156,11 +167,11 @@ public class AdbCommandExecutor extends ShellCommandExecutor implements AdbComma
     }
 
     private static String getAdbDevicesPattern() {
-        return String.format(DEFAULT_ADB_DEVICES_PATTERN,
+        return String.format(ADB_DEVICES_PATTERN,
                 Arrays.stream(DeviceState.values()).map(DeviceState::get).collect(Collectors.joining("|")));
     }
 
     private static String getAdbDevicesPattern(DeviceState state) {
-        return String.format(DEFAULT_ADB_DEVICES_PATTERN, state.get());
+        return String.format(ADB_DEVICES_PATTERN, state.get());
     }
 }

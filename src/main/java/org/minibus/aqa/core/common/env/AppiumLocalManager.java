@@ -1,65 +1,82 @@
 package org.minibus.aqa.core.common.env;
 
-import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.service.local.AppiumDriverLocalService;
 import io.appium.java_client.service.local.AppiumServiceBuilder;
-import org.openqa.selenium.remote.DesiredCapabilities;
+import org.minibus.aqa.core.common.cli.ShellCommandExecutor;
+import org.minibus.aqa.core.common.handlers.TestLogger;
 
 import java.net.URL;
+import java.time.LocalDateTime;
 
 public class AppiumLocalManager {
 
-    private static AppiumLocalManager instance;
+    private static final int TERMINATING_TIMEOUT = 15;
 
+    private static AppiumLocalManager instance;
     private static AppiumDriverLocalService service;
-    private AppiumDriver appiumDriver;
-    private DesiredCapabilities capabilities;
-    private String sessionId;
     private String host;
     private int port;
 
-    private AppiumLocalManager() {}
+    private AppiumLocalManager(AppiumServiceBuilder builder) {
+        service = builder.build();
+        this.port = service.getUrl().getPort();
+        this.host = service.getUrl().getHost();
 
-    public static synchronized AppiumLocalManager getInstance(){
-        if (instance == null) instance = new AppiumLocalManager();
+        if (Environment.getInstance().isUnixLike()) {
+            if (!ShellCommandExecutor.isPortOpened(port)) {
+                throw new UnsupportedOperationException(String.format("Can't build Appium service, %d port is in use", port));
+            }
+        }
+
+        Environment.getInstance().getAppiumConfig().setAppiumUrl(service.getUrl());
+    }
+
+    public static synchronized AppiumLocalManager getService(AppiumServiceBuilder builder) {
+        if (instance == null) {
+            TestLogger.get().info("Appium local service hasn't built yet, building a new one...");
+            instance = new AppiumLocalManager(builder);
+        }
         return instance;
     }
 
-    public AppiumDriverLocalService getService() {
-        return service;
-    }
-
-    public AppiumDriverLocalService createService(AppiumServiceBuilder builder) {
-        service = builder.build();
-
-        Environment.getInstance()
-                .getAppiumConfig()
-                .setStandalone(false)
-                .setAppiumUrl(service.getUrl());
-
-        return service;
-    }
-
-    public AppiumDriverLocalService createServiceDefault() {
-        service = createService(new AppiumServiceBuilder());
-        return service;
+    public static synchronized AppiumLocalManager getService() {
+        return getService(new AppiumServiceBuilder());
     }
 
     public void start() {
+        TestLogger.get().info(String.format("Starting Appium local service on %s", service.getUrl()));
         service.start();
     }
 
-    public void terminate() {
-        service.stop();
+    public void stop() {
+        if (isRunning()) {
+            TestLogger.get().info(String.format("Stopping Appium local service on %s", service.getUrl()));
+            service.stop();
+        }
     }
 
-    // todo
     public void restart() {
         if (isRunning()) {
-            host = getServiceUrl().getHost();
-            port = getServiceUrl().getPort();
-            terminate();
+            TestLogger.get().info(String.format("Restarting Appium local service on %s", service.getUrl()));
+            service.stop();
+            service.start();
+
+            LocalDateTime endTime = LocalDateTime.now().plusSeconds(TERMINATING_TIMEOUT);
+            do {
+                if (isRunning()) {
+                    TestLogger.get().info("Appium local service has been successfully restarted");
+                    break;
+                }
+            } while(LocalDateTime.now().isBefore(endTime));
         }
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public int getPort() {
+        return port;
     }
 
     public URL getServiceUrl() {
