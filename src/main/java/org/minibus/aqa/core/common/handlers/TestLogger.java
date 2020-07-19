@@ -24,14 +24,6 @@ public class TestLogger {
         return instance;
     }
 
-    public void startTests(int count) {
-        info(String.format("[TESTING HAS STARTED][TESTS FOUND: %d]", count));
-    }
-
-    public void finishTests(int failed, int succeeded) {
-        info(String.format("[TESTING HAS FINISHED][FAILED: %d][SUCCEEDED: %d]", failed, succeeded));
-    }
-
     public void debug(String msg) {
         logback.debug(msg);
     }

@@ -36,10 +36,6 @@ public class ShellCommandExecutor {
 
             int exitCode = process.exitValue();
 
-            if (exitCode != 0) {
-                TestLogger.get().error(String.format("'%s' command execution has failed", cmdParts[0]));
-            }
-
             return new ProcessResult(pid, exitCode, startTime, resolveOutput(process.getInputStream()), resolveOutput(process.getErrorStream()));
         } catch (IOException | InterruptedException e) {
             return new ProcessResult(pid,1, startTime, StringUtils.EMPTY, e.getMessage());
@@ -146,7 +142,9 @@ public class ShellCommandExecutor {
                     TestLogger.get().debug(String.format("stdout: %s", this.stdout));
                 }
             } else {
-                TestLogger.get().error(String.format("stderr: %s", this.stderr));
+                if (!this.stderr.isEmpty()) {
+                    TestLogger.get().error(String.format("stderr: %s", this.stderr));
+                }
             }
         }
 

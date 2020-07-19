@@ -22,13 +22,12 @@ public abstract class BaseTest {
     private Environment environment;
     private AppiumConfig appiumConfig;
     private DeviceConfig deviceConfig;
+    private Device device;
 
     @BeforeSuite(alwaysRun = true)
     public void beforeSuite(ITestContext context) {
         ((TestRunner) context).getSuite().getXmlSuite().setThreadCount(1);
         ((TestRunner) context).addListener(TestListener.getInstance());
-
-        TestLogger.get().startTests(context.getSuite().getXmlSuite().getTests().size());
 
         environment = Environment.getInstance();
         deviceConfig = Environment.getInstance().getDeviceConfig();
@@ -36,9 +35,10 @@ public abstract class BaseTest {
 
         if (!appiumConfig.isStandalone()) {
             AppiumLocalManager.getService(new AppiumServiceBuilder().usingAnyFreePort()).start();
+            new Device(deviceConfig).initDriver(AppiumLocalManager.getService().getServiceUrl());
+        } else {
+            new Device(deviceConfig).initDriver(Environment.getInstance().getAppiumConfig().getAppiumUrl());
         }
-
-        new Device(deviceConfig).initDriver();
     }
 
     @AfterSuite(alwaysRun = true)
@@ -48,7 +48,5 @@ public abstract class BaseTest {
         if (!appiumConfig.isStandalone()) {
             AppiumLocalManager.getService().stop();
         }
-
-        TestLogger.get().finishTests(context.getFailedTests().size(), context.getPassedTests().size());
     }
 }

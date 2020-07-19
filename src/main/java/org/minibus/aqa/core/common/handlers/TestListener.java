@@ -22,7 +22,7 @@ public class TestListener implements ITestListener, IConfigurationListener {
     }
 
     private static long getDuration(long endTimeMs) {
-        return endTimeMs - startTimeMs;
+        return startTimeMs == 0 ? startTimeMs : endTimeMs - startTimeMs;
     }
 
     @Override
@@ -55,12 +55,14 @@ public class TestListener implements ITestListener, IConfigurationListener {
 
     @Override
     public void onStart(ITestContext iTestContext) {
-
+        TestLogger.get().info(String.format("[TESTING HAS STARTED][TESTS FOUND: %d]",
+                iTestContext.getSuite().getXmlSuite().getTests().size()));
     }
 
     @Override
     public void onFinish(ITestContext iTestContext) {
-
+        TestLogger.get().info(String.format("[TESTING HAS FINISHED][FAILED: %d][SUCCEEDED: %d]",
+                iTestContext.getFailedTests().size(), iTestContext.getPassedTests().size()));
     }
 
     @Override

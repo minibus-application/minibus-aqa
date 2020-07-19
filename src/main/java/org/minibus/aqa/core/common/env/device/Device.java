@@ -82,8 +82,8 @@ public class Device {
         capabilities.setCapability(APP_ACTIVITY, config.getAppActivity());
     }
 
-    public AndroidDriver initDriver() {
-        return initDriver(Environment.getInstance().getAppiumConfig().getAppiumUrl(), capabilities);
+    public synchronized AndroidDriver initDriver(URL serverUrl) {
+        return initDriver(serverUrl, this.capabilities);
     }
 
     public synchronized AndroidDriver initDriver(URL serverUrl, DesiredCapabilities capabilities) {
