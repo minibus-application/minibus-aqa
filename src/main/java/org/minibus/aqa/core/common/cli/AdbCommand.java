@@ -44,6 +44,7 @@ public interface AdbCommand {
         ONLINE("device"),
         OFFLINE("offline"),
         UNPLUGGED("no device"),
+        NO_PERMISSIONS("no permissions"),
         UNDEFINED(Constants.NULL);
 
         private String state;
