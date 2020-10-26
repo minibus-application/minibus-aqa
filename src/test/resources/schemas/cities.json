@@ -1,0 +1,43 @@
+{
+  "title": "Root",
+  "type": "array",
+  "default": [],
+  "items":{
+    "$id": "#root/cities",
+    "title": "Cities",
+    "type": "object",
+    "required": ["_id", "name", "region", "station", "lat", "lng"],
+    "properties": {
+      "_id": {
+        "$id": "#root/items/_id",
+        "title": "_id",
+        "type": "string"
+      },
+      "name": {
+        "$id": "#root/items/name",
+        "title": "Name",
+        "type": "string"
+      },
+      "region": {
+        "$id": "#root/items/region",
+        "title": "Region",
+        "type": "string"
+      },
+      "station": {
+        "$id": "#root/items/station",
+        "title": "Station",
+        "type": "string"
+      },
+      "lat": {
+        "$id": "#root/items/lat",
+        "title": "Lat",
+        "type": "number"
+      },
+      "lng": {
+        "$id": "#root/items/lng",
+        "title": "Lng",
+        "type": "number"
+      }
+    }
+  }
+}

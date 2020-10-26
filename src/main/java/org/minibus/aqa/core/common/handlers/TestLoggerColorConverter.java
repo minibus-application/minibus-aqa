@@ -21,5 +21,4 @@ public class TestLoggerColorConverter extends ForegroundCompositeConverterBase<I
                 return ANSIConstants.DEFAULT_FG;
         }
     }
-
 }

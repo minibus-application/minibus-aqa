@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public interface AdbCommand {
-
     String ADB = "adb";
     String SHELL = "shell";
     String GETPROP = "getprop";

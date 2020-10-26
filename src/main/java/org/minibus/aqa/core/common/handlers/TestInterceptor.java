@@ -1,7 +1,7 @@
 package org.minibus.aqa.core.common.handlers;
 
-import org.minibus.aqa.core.common.env.DeviceConfig;
-import org.minibus.aqa.core.common.env.Environment;
+import org.minibus.aqa.core.common.env.config.ConfigManager;
+import org.minibus.aqa.core.common.env.config.DeviceGeneralConfig;
 import org.testng.IMethodInstance;
 import org.testng.IMethodInterceptor;
 import org.testng.ITestContext;
@@ -17,7 +17,7 @@ public class TestInterceptor implements IMethodInterceptor {
     @Override
     public List<IMethodInstance> intercept(List<IMethodInstance> methods, ITestContext iTestContext) {
         List<IMethodInstance> methodInstances = new LinkedList<>(methods);
-        DeviceConfig config = Environment.getInstance().getDeviceConfig();
+        DeviceGeneralConfig config = ConfigManager.getDeviceGeneralConfig();
 
         return methodInstances.stream()
                 .filter(i -> {
@@ -29,8 +29,8 @@ public class TestInterceptor implements IMethodInterceptor {
                         final String[] versions = annotation.versions();
                         final DeviceType[] types = annotation.types();
 
-                        boolean byVersion = versions.length == 0 || Arrays.stream(versions).anyMatch(v -> v.equals(config.getPlatform()));
-                        boolean byType = types.length == 0 || List.of(types).contains(config.isEmulated() ? DeviceType.EMULATOR : DeviceType.PHYSICAL);
+                        boolean byVersion = versions.length == 0 || Arrays.stream(versions).anyMatch(v -> v.equals(config.platform()));
+                        boolean byType = types.length == 0 || List.of(types).contains(config.emulated() ? DeviceType.EMULATOR : DeviceType.PHYSICAL);
 
                         return byVersion && byType;
                     } else {

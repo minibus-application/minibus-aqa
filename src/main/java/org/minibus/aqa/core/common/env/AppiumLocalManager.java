@@ -3,37 +3,38 @@ package org.minibus.aqa.core.common.env;
 import io.appium.java_client.service.local.AppiumDriverLocalService;
 import io.appium.java_client.service.local.AppiumServiceBuilder;
 import org.minibus.aqa.core.common.cli.ShellCommandExecutor;
-import org.minibus.aqa.core.common.handlers.TestLogger;
+import org.minibus.aqa.core.common.env.config.ConfigManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URL;
 import java.time.LocalDateTime;
 
 public class AppiumLocalManager {
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(AppiumLocalManager.class);
     private static final int TERMINATING_TIMEOUT = 15;
-
     private static AppiumLocalManager instance;
     private static AppiumDriverLocalService service;
-    private String host;
-    private int port;
 
     private AppiumLocalManager(AppiumServiceBuilder builder) {
         service = builder.build();
-        this.port = service.getUrl().getPort();
-        this.host = service.getUrl().getHost();
+        int port = service.getUrl().getPort();
+        String host = service.getUrl().getHost();
 
-        if (Environment.getInstance().isUnixLike()) {
+        if (!ConfigManager.getGeneralConfig().systemName().toLowerCase().startsWith("windows")) {
             if (!ShellCommandExecutor.isPortOpened(port)) {
                 throw new UnsupportedOperationException(String.format("Can't build Appium service, %d port is in use", port));
             }
         }
 
-        Environment.getInstance().getAppiumConfig().setAppiumUrl(service.getUrl());
+        System.setProperty("appium.port", String.valueOf(port));
+        System.setProperty("appium.host", host);
+        ConfigManager.getAppiumConfig().reload();
     }
 
     public static synchronized AppiumLocalManager getService(AppiumServiceBuilder builder) {
         if (instance == null) {
-            TestLogger.get().info("Appium local service hasn't built yet, building a new one...");
+            LOGGER.info("Appium local service hasn't built yet, building a new one...");
             instance = new AppiumLocalManager(builder);
         }
         return instance;
@@ -44,27 +45,27 @@ public class AppiumLocalManager {
     }
 
     public void start() {
-        TestLogger.get().info(String.format("Starting Appium local service on %s", service.getUrl()));
+        LOGGER.info(String.format("Starting Appium local service: %s", service.getUrl()));
         service.start();
     }
 
-    public void stop() {
+    public static void stop() {
         if (isRunning()) {
-            TestLogger.get().info(String.format("Stopping Appium local service on %s", service.getUrl()));
+            LOGGER.info(String.format("Stopping Appium local service: %s", service.getUrl()));
             service.stop();
         }
     }
 
-    public void restart() {
+    public static void restart() {
         if (isRunning()) {
-            TestLogger.get().info(String.format("Restarting Appium local service on %s", service.getUrl()));
+            LOGGER.info(String.format("Restarting Appium local service: %s", service.getUrl()));
             service.stop();
             service.start();
 
             LocalDateTime endTime = LocalDateTime.now().plusSeconds(TERMINATING_TIMEOUT);
             do {
                 if (isRunning()) {
-                    TestLogger.get().info("Appium local service has been successfully restarted");
+                    LOGGER.info("Appium local service has been successfully restarted");
                     break;
                 }
             } while(LocalDateTime.now().isBefore(endTime));
@@ -72,18 +73,18 @@ public class AppiumLocalManager {
     }
 
     public String getHost() {
-        return host;
+        return service.getUrl().getHost();
     }
 
     public int getPort() {
-        return port;
+        return service.getUrl().getPort();
     }
 
     public URL getServiceUrl() {
         return service.getUrl();
     }
 
-    public boolean isRunning() {
+    public static boolean isRunning() {
         return service != null && service.isRunning();
     }
 }

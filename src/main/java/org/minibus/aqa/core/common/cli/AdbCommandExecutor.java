@@ -1,8 +1,9 @@
 package org.minibus.aqa.core.common.cli;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.minibus.aqa.Constants;
-import org.minibus.aqa.core.helpers.RandomGenerator;
+import org.minibus.aqa.core.helpers.RandomHelper;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,7 +13,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class AdbCommandExecutor extends ShellCommandExecutor implements AdbCommand {
-
     private static final String ADB_DEVICES_PATTERN = "([a-zA-Z0-9\\\\-]+)\\t%s\\b";
     private static final String ADB_DEVICE_INFO_PATTERN = "(?:%s.*?)%s:(\\S+|$)";
     private static final String ADB_ALL_DEVICE_INFO_PATTERN = "(?:%s\\s+.*?\\s+)(.*)";
@@ -22,7 +22,7 @@ public class AdbCommandExecutor extends ShellCommandExecutor implements AdbComma
     }
 
     public static File takeScreenshot(String udid) {
-        String filePath = String.format("%s%s.%s", Constants.DEVICE_SDCARD, RandomGenerator.temp(), Constants.PNG);
+        String filePath = String.format("%s%s.%s", Constants.DEVICE_SDCARD, RandomHelper.temp(), Constants.PNG);
         adb(udid, SHELL, SCREENCAP, filePath);
 
         return new File(filePath);
@@ -96,6 +96,18 @@ public class AdbCommandExecutor extends ShellCommandExecutor implements AdbComma
         return String.join(delimiter, getDevices(state));
     }
 
+    public static String getDeviceName(String serial) {
+        return adb(serial, "emu", "avd", "name")
+                .getRawStdout()
+                .split("\n")[0]
+                .trim();
+    }
+
+    public static String getConnectedDeviceSerial(String deviceName) {
+        List<String> connectedDevices = getDevices(DeviceState.ONLINE);
+        return connectedDevices.stream().filter(s -> deviceName.equals(getDeviceName(s))).findFirst().orElse(StringUtils.EMPTY);
+    }
+
     public static DeviceState getDeviceState(String udid) {
         String state = adb(udid, STATE)
                 .getRawStdout()
@@ -115,7 +127,7 @@ public class AdbCommandExecutor extends ShellCommandExecutor implements AdbComma
         if (matcher.find()) {
             return matcher.group(1);
         } else {
-            return Constants.NULL;
+            return StringUtils.EMPTY;
         }
     }
 
@@ -128,7 +140,7 @@ public class AdbCommandExecutor extends ShellCommandExecutor implements AdbComma
         if (matcher.find()) {
             return matcher.group(1);
         } else {
-            return Constants.NULL;
+            return StringUtils.EMPTY;
         }
     }
 
@@ -140,18 +152,18 @@ public class AdbCommandExecutor extends ShellCommandExecutor implements AdbComma
     }
 
     public static boolean startAdbd() {
-        ProcessResult processResult = exec(ADB, START_ADBD);
-        String out = processResult.getRawStdout();
+        ShellCommandResult shellCommandResult = exec(ADB, START_ADBD);
+        String out = shellCommandResult.getRawStdout();
 
-        return processResult.getExitCode() != 1 && (out.isEmpty() || out.contains("successfully"));
+        return shellCommandResult.getExitCode() != 1 && (out.isEmpty() || out.contains("successfully"));
     }
 
     public static boolean killAdbd() {
-        ProcessResult processResult = exec(ADB, KILL_ADBD);
-        return processResult.getExitCode() != 1 && !isAlive(ADB);
+        ShellCommandResult shellCommandResult = exec(ADB, KILL_ADBD);
+        return shellCommandResult.getExitCode() != 1 && !isAlive(ADB);
     }
 
-    private static ProcessResult adb(String udid, String... cmdParts) {
+    private static ShellCommandResult adb(String udid, String... cmdParts) {
         int devicesCount = getDevicesCount();
 
         if ((udid == null || udid.isEmpty()) && devicesCount == 1) {

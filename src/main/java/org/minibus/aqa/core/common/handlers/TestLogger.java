@@ -2,11 +2,13 @@ package org.minibus.aqa.core.common.handlers;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.MobileElement;
 import org.slf4j.LoggerFactory;
 
 public class TestLogger {
 
-    private static TestLogger instance;
+    private static ThreadLocal<TestLogger> instance = new ThreadLocal<>();
     private static Logger logback;
 
     private TestLogger() {
@@ -18,10 +20,10 @@ public class TestLogger {
     }
 
     public static synchronized TestLogger get() {
-        if (instance == null) {
-            instance = new TestLogger();
+        if (instance.get() == null) {
+            instance.set(new TestLogger());
         }
-        return instance;
+        return instance.get();
     }
 
     public void debug(String msg) {

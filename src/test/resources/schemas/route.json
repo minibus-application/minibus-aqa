@@ -1,0 +1,103 @@
+{
+  "title": "Root",
+  "type": "object",
+  "required": ["opDays", "_id", "desc", "from", "to"],
+  "properties": {
+    "opDays": {
+      "$id": "#root/opDays",
+      "title": "Operational days",
+      "type": "array",
+      "items":{
+        "$id": "#root/opDays/items",
+        "title": "Days",
+        "type": "integer"
+      }
+    },
+    "_id": {
+      "$id": "#root/_id",
+      "title": "_id",
+      "type": "string"
+    },
+    "desc": {
+      "$id": "#root/desc",
+      "title": "Description",
+      "type": "string"
+    },
+    "from": {
+      "$id": "#root/from",
+      "title": "From",
+      "type": "object",
+      "required": ["_id", "name", "region", "station", "lat", "lng"],
+      "properties": {
+        "_id": {
+          "$id": "#root/from/_id",
+          "title": "_id",
+          "type": "string"
+        },
+        "name": {
+          "$id": "#root/from/name",
+          "title": "Name",
+          "type": "string"
+        },
+        "region": {
+          "$id": "#root/from/region",
+          "title": "Region",
+          "type": "string"
+        },
+        "station": {
+          "$id": "#root/from/station",
+          "title": "Station",
+          "type": "string"
+        },
+        "lat": {
+          "$id": "#root/from/lat",
+          "title": "Latitude",
+          "type": "number"
+        },
+        "lng": {
+          "$id": "#root/from/lng",
+          "title": "Longitude",
+          "type": "number"
+        }
+      }
+    },
+    "to": {
+      "$id": "#root/to",
+      "title": "To",
+      "type": "object",
+      "required": ["_id", "name", "region", "station", "lat", "lng"],
+      "properties": {
+        "_id": {
+          "$id": "#root/to/_id",
+          "title": "_id",
+          "type": "string"
+        },
+        "name": {
+          "$id": "#root/to/name",
+          "title": "Name",
+          "type": "string"
+        },
+        "region": {
+          "$id": "#root/to/region",
+          "title": "Region",
+          "type": "string"
+        },
+        "station": {
+          "$id": "#root/to/station",
+          "title": "Station",
+          "type": "string"
+        },
+        "lat": {
+          "$id": "#root/to/lat",
+          "title": "Latitude",
+          "type": "number"
+        },
+        "lng": {
+          "$id": "#root/to/lng",
+          "title": "Longitude",
+          "type": "number"
+        }
+      }
+    }
+  }
+}

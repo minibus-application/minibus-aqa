@@ -1,8 +1,9 @@
 package org.minibus.aqa.core.helpers;
 
 import io.appium.java_client.MobileElement;
+import org.codehaus.commons.nullanalysis.NotNull;
 import org.minibus.aqa.Constants;
-import org.minibus.aqa.core.common.env.device.Device;
+import org.minibus.aqa.core.common.env.Device;
 import org.openqa.selenium.OutputType;
 
 import javax.imageio.ImageIO;
@@ -12,7 +13,40 @@ import java.io.*;
 
 public class ImageProcessor {
 
-    public static boolean isOfColor(MobileElement element, ImageColor color, ImageRegion region) {
+    private static final int DEFAULT_THRESHOLD_VALUE = 170;
+
+    public static BufferedImage thresholdImage(@NotNull final File imageFile) {
+        try {
+            BufferedImage imageToProcess = ImageIO.read(imageFile);
+            Color color;
+            int width = imageToProcess.getWidth();
+            int height = imageToProcess.getHeight();
+            int i, j;
+
+            for (i = 0; i < height; i++) {
+                for (j = 0; j < width; j++) {
+                    Color c = new Color(imageToProcess.getRGB(j, i));
+                    int red = c.getRed();
+                    int green = c.getGreen();
+                    int blue = c.getBlue();
+
+                    if (((red + green + blue) / 3) < DEFAULT_THRESHOLD_VALUE || getPureColor(c.getRGB()) == ImageColor.GRAY) {
+                        color = new Color(255, 255, 255);
+                    } else {
+                        color = new Color(0, 0, 0);
+                    }
+
+                    imageToProcess.setRGB(j, i, color.getRGB());
+                }
+            }
+
+            return imageToProcess;
+        } catch (Exception e) {
+            throw new RuntimeException("An error while thresholding the image:\n" + e);
+        }
+    }
+
+    public static boolean hasColor(MobileElement element, ImageColor color, ImageRegion region) {
         BufferedImage image = getElementBufferedImage(element);
         int width = image.getWidth();
         int height = image.getHeight();
@@ -35,10 +69,10 @@ public class ImageProcessor {
                 break;
         }
 
-        return isOfColor(image, color);
+        return hasColor(image, color);
     }
 
-    public static boolean isOfColor(BufferedImage image, ImageColor color) {
+    public static boolean hasColor(BufferedImage image, ImageColor color) {
         int width = image.getWidth();
         int height = image.getHeight();
 
@@ -62,12 +96,12 @@ public class ImageProcessor {
         return colorMatchesWithinImage != 0 && (colorMatchesWithinImage >= totalColoredPixels / 2);
     }
 
-    public static boolean isOfColor(MobileElement element, ImageColor color) {
-        return isOfColor(getElementBufferedImage(element), color);
+    public static boolean hasColor(MobileElement element, ImageColor color) {
+        return hasColor(getElementBufferedImage(element), color);
     }
 
-    public static boolean isOfColor(MobileElement element, String hexColor) {
-        return isOfColor(element, getPureColor(Color.decode(hexColor).getRGB()));
+    public static boolean hasColor(MobileElement element, String hexColor) {
+        return hasColor(element, getPureColor(Color.decode(hexColor).getRGB()));
     }
 
     public static File getElementScreenshot(MobileElement element) {
