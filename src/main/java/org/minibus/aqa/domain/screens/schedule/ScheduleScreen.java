@@ -45,6 +45,22 @@ public class ScheduleScreen extends BaseScreen {
         return waitForLoading(timeoutSec);
     }
 
+    public String getDepartureCity() {
+        return fieldDepartureCity.getText().split(",")[0].trim();
+    }
+
+    public String getArrivalCity() {
+        return fieldArrivalCity.getText().split(",")[0].trim();
+    }
+
+    public String getDepartureCityRegion() {
+        return fieldDepartureCity.getText().split(",")[1].trim();
+    }
+
+    public String getArrivalCityRegion() {
+        return fieldArrivalCity.getText().split(",")[1].trim();
+    }
+
     public boolean isDepartureCitySelected() {
         return !fieldDepartureCity.getText().isEmpty() && !fieldDepartureCity.getText().equals(DEFAULT_DEPARTURE_FIELD_VAL);
     }

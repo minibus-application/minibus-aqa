@@ -45,7 +45,7 @@ public class ScheduleCalendar extends Widget {
         return getSelectedDate().equals(convertedDate);
     }
 
-    public int getCalendarSize() {
+    public int getCapacity() {
         return calendarDates.size();
     }
 
@@ -72,7 +72,7 @@ public class ScheduleCalendar extends Widget {
         return getSelectedCalendarDatePair().getValue().getDate(calendarDatePair.getKey());
     }
 
-    public int getSelectedCalendarDatePosition() {
+    public int getSelectedDatePosition() {
         return getSelectedCalendarDatePair().getKey();
     }
 
