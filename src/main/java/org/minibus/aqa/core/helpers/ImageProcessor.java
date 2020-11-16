@@ -3,13 +3,17 @@ package org.minibus.aqa.core.helpers;
 import io.appium.java_client.MobileElement;
 import org.codehaus.commons.nullanalysis.NotNull;
 import org.minibus.aqa.Constants;
-import org.minibus.aqa.core.common.env.Device;
+import org.minibus.aqa.core.env.Device;
 import org.openqa.selenium.OutputType;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.UUID;
 
 public class ImageProcessor {
 
@@ -105,18 +109,16 @@ public class ImageProcessor {
     }
 
     public static File getElementScreenshot(MobileElement element) {
-        File screenshot = Device.getScreenshot();
-
+        Path screenshotPath;
         try {
-            byte[] imageBytes = element.getScreenshotAs(OutputType.BYTES);
-            BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(imageBytes));
-            ImageIO.write(bufferedImage, Constants.PNG, screenshot);
+            byte[] decodedImg = element.getScreenshotAs(OutputType.BYTES);
+            // BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(decodedImg));
+            screenshotPath = Files.write(Paths.get(Constants.PROJECT_REPORT_SCREENSHOT_FOLDER, UUID.randomUUID() + ".png"), decodedImg);
         } catch (IOException e) {
-            // Logger.get().info(e.getMessage());
             throw new RuntimeException(e);
         }
 
-        return screenshot;
+        return screenshotPath.toFile();
     }
 
     private static BufferedImage getElementBufferedImage(MobileElement element) {
@@ -126,7 +128,6 @@ public class ImageProcessor {
         try {
             bufferedImage = ImageIO.read(screenshot);
         } catch (IOException e) {
-            // Logger.get().info(e.getMessage());
             throw new RuntimeException(e);
         }
 

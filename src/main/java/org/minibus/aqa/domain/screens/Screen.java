@@ -6,8 +6,11 @@ import io.appium.java_client.MobileElement;
 public interface Screen {
 
     boolean isOpened();
-    boolean isOpened(int timeout);
+
+    boolean isOpened(int timeoutSec);
+
     String getName();
+
     String getTitle();
 
     AppiumDriver<MobileElement> getDriver();

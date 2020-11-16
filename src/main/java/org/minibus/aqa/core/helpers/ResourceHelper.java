@@ -1,5 +1,6 @@
 package org.minibus.aqa.core.helpers;
 
+import org.apache.commons.lang3.StringUtils;
 import org.minibus.aqa.Constants;
 import org.testng.util.Strings;
 
@@ -14,127 +15,76 @@ import java.util.stream.Collectors;
 public class ResourceHelper {
 
     private static ResourceHelper instance;
-    private final String DIR = "resources";
     private List<Path> resources;
-    private HashMap<Path, Properties> propertiesMap;
 
-    private ResourceHelper() {
-        this.resources = new LinkedList<>();
-        this.propertiesMap = new HashMap<>();
+    private ResourceHelper(LinkedList<Path> resources) {
+        this.resources = resources;
     }
 
     public static synchronized ResourceHelper getInstance() {
         if (instance == null) {
-            instance = new ResourceHelper();
+            instance = new ResourceHelper(initResources());
         }
         return instance;
     }
 
-    public void initResources(String... exceptions) {
+    public Path getResourcePath(String fullFileName, String... precedingPath) {
+        final String desiredPath = StringUtils.join(precedingPath, File.separator);
+        Optional<Path> optPath = resources.stream()
+                .filter(p -> p.getFileName().toString().equals(fullFileName))
+                .filter(p -> {
+                    if (desiredPath.length() > 0) {
+                        int endDirIndex = p.getNameCount() - 1;
+                        int startDirIndex = endDirIndex - precedingPath.length;
+                        return p.subpath(startDirIndex, endDirIndex).toString().endsWith(desiredPath);
+                    } else return true;
+                })
+                .findFirst();
+        return optPath.orElseThrow(() -> {
+            throw new RuntimeException(String.format("Can not extract '%s' file with '%s' path from paths:\n%s",
+                    fullFileName, desiredPath,
+                    StringUtils.join(resources.stream().map(Path::toString).collect(Collectors.toList()), "\n")));
+        });
+    }
+
+    private static LinkedList<Path> initResources() {
+        final String RESOURCES = "resources";
+        LinkedList<Path> allResourceFilePaths = new LinkedList<>();
         try {
             Files.walk(Paths.get(Constants.PROJECT_DIR_PATH))
-                    .filter(dir -> Files.isDirectory(dir) && dir.getFileName().toString().equals(DIR))
-                    .forEach(dir -> pullOutFiles(dir, exceptions));
-
+                    .filter(dir -> Files.isDirectory(dir) && dir.getFileName().toString().equals(RESOURCES))
+                    .forEach(resourcesDirPath -> {
+                        allResourceFilePaths.addAll(pullOutFiles(resourcesDirPath));
+                    });
+            return allResourceFilePaths;
         } catch (IOException e) {
             throw new RuntimeException("Failed to init resources\n", e);
         }
     }
 
-    public Properties loadProperties(String parentDir, String fileName) {
-        Properties properties = new Properties();
-        try {
-            Path propertiesPath = getResourcePath(parentDir, resolvePropertiesFileName(fileName));
-            properties.load(new FileReader(new File(propertiesPath.toString())));
-            propertiesMap.put(propertiesPath, properties);
-        } catch (IOException e) {
-            throw new RuntimeException(String.format("Failed to pull ../%s/%s file. File not found\n", parentDir, fileName), e);
-        }
+    private static LinkedList<Path> pullOutFiles(Path resourcesDir) {
+        LinkedList<Path> paths = new LinkedList<>();
 
-        return properties;
-    }
-
-    public Properties loadProperties(String fileName) {
-        return loadProperties(DIR, fileName);
-    }
-
-    public String getPropertyValue(File propertyFile, String key) {
-        Properties properties = new Properties();
-        try {
-            properties.load(new FileReader(propertyFile));
-        } catch (IOException e) {
-            throw new RuntimeException(String.format("Failed to load properties from %s file. File not found\n", propertyFile), e);
-        }
-        String value = properties.getProperty(key);
-        if (Strings.isNullOrEmpty(value)) {
-            throw new RuntimeException(String.format("Property '%s' not found in file '%s'", key, propertyFile));
-        }
-        return value;
-    }
-
-    public Path getResourcePath(String parentDir, String fileName) {
-        try {
-            return resources.stream()
-                    .filter(p -> p.getFileName().toString().equals(fileName)
-                            && p.getParent().getFileName().toString().equals(parentDir))
-                    .findFirst()
-                    .get();
-        } catch (NullPointerException | NoSuchElementException e) {
-            throw new RuntimeException(String.format("Failed to pull ../%s/%s file. File not found\n", parentDir, fileName));
-        }
-    }
-
-    public LinkedList<Path> getResourcePaths(String parentDir) {
-        try {
-            return resources.stream()
-                    .filter(p -> p.getParent().getFileName().toString().equals(parentDir) && Files.isRegularFile(p))
-                    .collect(Collectors.toCollection(LinkedList::new));
-        } catch (NullPointerException e) {
-            throw new RuntimeException(String.format("Failed to pull files in ../%s. Dir not found\n", parentDir));
-        }
-    }
-
-    public File getResourceFile(String parentDir, String fileName) {
-        return new File(getResourcePath(parentDir, fileName).toString());
-    }
-
-    public Properties getProperties(String parentDir, String fileName) {
-        return propertiesMap.get(getResourcePath(parentDir, resolvePropertiesFileName(fileName)));
-    }
-
-    public Properties getProperties(Path filePath) {
-        return propertiesMap.get(filePath);
-    }
-
-    private void pullOutFiles(Path resourcesDir, String... exceptions) {
         try {
             Files.walkFileTree(resourcesDir, new SimpleFileVisitor<>() {
 
                 @Override
                 public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-                    if (exceptions.length > 0) {
-                        if (Arrays.asList(exceptions).contains(dir.getFileName().toString())) {
-                            return FileVisitResult.SKIP_SUBTREE;
-                        }
-                    }
                     return FileVisitResult.CONTINUE;
                 }
 
                 @Override
                 public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
-                    if (attrs.isRegularFile()) resources.add(filePath);
+                    if (attrs.isRegularFile()) {
+                        paths.add(filePath);
+                    }
 
                     return super.visitFile(filePath, attrs);
                 }
             });
+            return paths;
         } catch (IOException e) {
             throw new RuntimeException("Failed to load properties in " + resourcesDir + "\n", e);
         }
-    }
-
-    private String resolvePropertiesFileName(String fileName) {
-        return fileName != null && fileName.endsWith(".properties")
-                ? fileName
-                : fileName + ".properties";
     }
 }
