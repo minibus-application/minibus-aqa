@@ -3,7 +3,7 @@
 
     <test name="Debug Test">
         <classes>
-            <class name="org.minibus.aqa.ui.DebugTest"/>
+            <!--<class name="org.minibus.aqa.test.ui.DebugTest"/>-->
         </classes>
     </test>
 </suite>

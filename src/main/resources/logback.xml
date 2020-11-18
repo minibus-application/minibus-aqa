@@ -1,5 +1,5 @@
 <configuration>
-    <conversionRule conversionWord="coloring" converterClass="org.minibus.aqa.core.handlers.TestLoggerColorConverter"/>
+    <conversionRule conversionWord="coloring" converterClass="org.minibus.aqa.main.core.handlers.TestLoggerColorConverter"/>
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <withJansi>false</withJansi>
