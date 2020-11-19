@@ -1,7 +1,7 @@
 package org.minibus.aqa.main.domain.screens;
 
-import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.MobileElement;
+import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.AndroidElement;
 import io.appium.java_client.pagefactory.AndroidFindBy;
 import io.qameta.allure.Step;
@@ -14,7 +14,7 @@ public abstract class BaseLoadableScreen extends BaseScreen implements Loadable 
     @AndroidFindBy(id = "progress_loading")
     private AndroidElement progressBar;
 
-    protected BaseLoadableScreen(AppiumDriver<MobileElement> driver, String screenName) {
+    protected BaseLoadableScreen(AndroidDriver<MobileElement> driver, String screenName) {
         super(driver, screenName);
     }
 

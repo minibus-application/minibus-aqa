@@ -1,7 +1,8 @@
 package org.minibus.aqa.main.core.env;
 
-import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.MobileElement;
+import io.appium.java_client.Setting;
+import io.appium.java_client.android.AndroidDriver;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.minibus.aqa.main.core.env.config.AppiumConfig;
@@ -20,7 +21,9 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static io.appium.java_client.remote.AndroidMobileCapabilityType.*;
@@ -28,20 +31,7 @@ import static io.appium.java_client.remote.MobileCapabilityType.*;
 
 public class Device {
     private static final Logger LOGGER = LoggerFactory.getLogger(Device.class);
-    private static ThreadLocal<AppiumDriver<MobileElement>> driver = new ThreadLocal<>();
-
-    static {
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            if (getDriver() != null) {
-                try {
-                    LOGGER.info(String.format("Terminating driver session: %s", getDriver().getSessionId().toString()));
-                    getDriver().quit();
-                } catch (Exception ignore) {
-                    // ignore
-                }
-            }
-        }));
-    }
+    private static ThreadLocal<AndroidDriver<MobileElement>> driver = new ThreadLocal<>();
 
     private static DesiredCapabilities resolveCapabilities(DeviceConfig deviceConfig, DeviceGeneralConfig config) {
         AppiumConfig appiumConfig = ConfigManager.getAppiumConfig();
@@ -88,7 +78,7 @@ public class Device {
         return path;
     }
 
-    public static synchronized AppiumDriver<MobileElement> create(String serverUrl, DeviceConfig deviceConfig, DeviceGeneralConfig config) {
+    public static synchronized AndroidDriver<MobileElement> create(String serverUrl, DeviceConfig deviceConfig, DeviceGeneralConfig config) {
         try {
             return create(new URL(serverUrl), deviceConfig, config);
         } catch (MalformedURLException e) {
@@ -96,18 +86,21 @@ public class Device {
         }
     }
 
-    public static synchronized AppiumDriver<MobileElement> create(URL serverUrl, DeviceConfig deviceConfig, DeviceGeneralConfig config) {
+    public static synchronized AndroidDriver<MobileElement> create(URL serverUrl, DeviceConfig deviceConfig, DeviceGeneralConfig config) {
         LOGGER.info(String.format("Starting new driver session: %s", serverUrl));
 
-        AppiumDriver<MobileElement> initializedDriver = new AppiumDriver<>(serverUrl, resolveCapabilities(deviceConfig, config));
+        AndroidDriver<MobileElement> initializedDriver = new AndroidDriver<>(serverUrl, resolveCapabilities(deviceConfig, config));
         initializedDriver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
+        initializedDriver.setSetting(Setting.WAIT_FOR_IDLE_TIMEOUT, 200);
+        initializedDriver.setSetting(Setting.WAIT_FOR_SELECTOR_TIMEOUT, 200);
+
         driver.set(initializedDriver);
 
         LOGGER.info(String.format("Driver session has started: %s", initializedDriver.getSessionId().toString()));
         return getDriver();
     }
 
-    public static AppiumDriver<MobileElement> getDriver() {
+    public static AndroidDriver<MobileElement> getDriver() {
         return driver.get();
     }
 
@@ -155,4 +148,19 @@ public class Device {
 
         return imageBytes;
     }
+
+/*    static {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            if (getDriver() != null) {
+                try {
+                    LOGGER.info(String.format("Terminating driver session: %s", getDriver().getSessionId().toString()));
+                    getDriver().quit();
+                } catch (Exception e) {
+                    LOGGER.warn("Can't terminate driver session:\n" + e.getMessage());
+                }
+            } else {
+                LOGGER.warn("Can't execute shutdown hook, device driver is null");
+            }
+        }));
+    }*/
 }

@@ -3,7 +3,10 @@ package org.minibus.aqa.test.api;
 import org.minibus.aqa.main.Constants;
 import org.minibus.aqa.main.domain.api.models.RouteDTO;
 import org.minibus.aqa.test.BaseTest;
+import org.minibus.aqa.test.TestGroup;
+import org.testng.ITestContext;
 import org.testng.SkipException;
+import org.testng.annotations.BeforeSuite;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -22,6 +25,12 @@ public abstract class BaseApiTest extends BaseTest {
     protected final static int TRIPS_PER_ROUTE_COUNT = 15;
     protected final static int TRIPS_PER_REGION_COUNT = (REGIONS_COUNT - 1) * TRIPS_PER_ROUTE_COUNT;
     protected final static int TRIPS_COUNT = TRIPS_PER_REGION_COUNT *  REGIONS_COUNT;
+
+    @BeforeSuite(groups = {TestGroup.API})
+    @Override
+    public void beforeSuite(ITestContext context) {
+        super.beforeSuite(context);
+    }
 
     protected RouteDTO findOperationalRoute(LocalDate desiredDate, boolean failIfAbsent) {
         List<RouteDTO> routesResponse = when().get("/routes").then().extract().jsonPath().getList("$", RouteDTO.class);

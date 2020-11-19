@@ -1,7 +1,7 @@
 package org.minibus.aqa.main.core.helpers;
 
-import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.MobileElement;
+import io.appium.java_client.android.AndroidDriver;
 import org.minibus.aqa.main.core.env.config.ConfigManager;
 import org.minibus.aqa.main.core.env.Device;
 import org.openqa.selenium.*;
@@ -61,7 +61,7 @@ public class VisibilityHelper {
         }
     }
 
-    private static FluentWait<AppiumDriver<MobileElement>> getFluentWait(int timeoutSec) {
+    private static FluentWait<AndroidDriver<MobileElement>> getFluentWait(int timeoutSec) {
         return new FluentWait<>(Device.getDriver())
                 .withTimeout(Duration.ofSeconds(timeoutSec))
                 .pollingEvery(Duration.ofMillis(1))

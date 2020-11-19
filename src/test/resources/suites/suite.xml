@@ -1,9 +1,16 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 <suite name="Suite">
 
-    <test name="Debug Test">
+    <test name="UI Test">
         <classes>
-            <!--<class name="org.minibus.aqa.test.ui.DebugTest"/>-->
+            <class name="org.minibus.aqa.test.ui.ScheduleCalendarTest"/>
+            <class name="org.minibus.aqa.test.ui.ScheduleRouteDirectionTest"/>
         </classes>
+    </test>
+
+    <test name="API Test">
+        <packages>
+            <package name="org.minibus.aqa.test.api"/>
+        </packages>
     </test>
 </suite>

@@ -1,7 +1,7 @@
 package org.minibus.aqa.test.ui;
 
-import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.MobileElement;
+import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.appmanagement.ApplicationState;
 import io.appium.java_client.service.local.AppiumServiceBuilder;
 import org.minibus.aqa.main.core.env.AppiumLocalManager;
@@ -20,9 +20,9 @@ import java.time.LocalDateTime;
 import static org.minibus.aqa.main.core.env.Device.getDriver;
 
 public abstract class BaseUiTest extends BaseTest {
-    protected AppiumDriver<MobileElement> driver;
+    protected AndroidDriver<MobileElement> driver;
 
-    @BeforeSuite(alwaysRun = true)
+    @BeforeSuite(groups = {TestGroup.UI})
     public void beforeSuite(ITestContext context) {
         super.beforeSuite(context);
 

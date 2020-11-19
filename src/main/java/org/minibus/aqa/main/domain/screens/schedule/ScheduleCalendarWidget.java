@@ -4,6 +4,7 @@ import io.appium.java_client.pagefactory.AndroidFindBy;
 import io.appium.java_client.pagefactory.Widget;
 import io.qameta.allure.Step;
 import org.apache.commons.lang3.tuple.Pair;
+import org.minibus.aqa.main.domain.screens.BaseWidget;
 import org.openqa.selenium.WebElement;
 
 import java.time.LocalDate;
@@ -13,7 +14,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @AndroidFindBy(id = "rv_calendar")
-public class ScheduleCalendarWidget extends Widget {
+public class ScheduleCalendarWidget extends BaseWidget {
 
     private List<CalendarDayWidget> calendarDays;
 
@@ -101,10 +102,14 @@ public class ScheduleCalendarWidget extends Widget {
 
     // get selected calendar day element paired with its position within the calendar
     private Pair<Integer, CalendarDayWidget> getSelectedCalendarDayPair() {
+        LOGGER.debug("Getting selected calendar day pair");
+
         OptionalInt optIndex = IntStream.range(0, calendarDays.size()).filter(i -> calendarDays.get(i).isSelected()).findFirst();
         if (optIndex.isPresent()) {
             int index = optIndex.getAsInt();
-            return Pair.of(index + 1, calendarDays.get(index));
+            Pair<Integer, CalendarDayWidget> pair = Pair.of(index + 1, calendarDays.get(index));
+            LOGGER.debug(String.format("The pair is (%s, %s)", pair.getKey(), pair.getValue().getDisplayDate()));
+            return pair;
         }
         throw new RuntimeException("No selected date found");
     }

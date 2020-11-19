@@ -1,7 +1,7 @@
 package org.minibus.aqa.main.domain.screens.schedule;
 
-import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.MobileElement;
+import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.AndroidElement;
 import io.appium.java_client.pagefactory.AndroidFindBy;
 import io.qameta.allure.Step;
@@ -46,7 +46,7 @@ public class ScheduleScreen extends BaseLoadableScreen {
     private static final String DEF_DEP_FIELD_VAL = "From";
     private static final String DEF_ARR_FIELD_VAL = "To";
 
-    public ScheduleScreen(AppiumDriver<MobileElement> driver) {
+    public ScheduleScreen(AndroidDriver<MobileElement> driver) {
         super(driver, SCREEN_NAME);
     }
 
