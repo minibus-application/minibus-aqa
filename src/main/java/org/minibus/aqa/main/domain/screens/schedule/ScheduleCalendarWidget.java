@@ -4,6 +4,7 @@ import io.appium.java_client.pagefactory.AndroidFindBy;
 import io.appium.java_client.pagefactory.Widget;
 import io.qameta.allure.Step;
 import org.apache.commons.lang3.tuple.Pair;
+import org.minibus.aqa.main.core.helpers.DateHelper;
 import org.minibus.aqa.main.domain.screens.BaseWidget;
 import org.openqa.selenium.WebElement;
 
@@ -16,6 +17,7 @@ import java.util.stream.IntStream;
 @AndroidFindBy(id = "rv_calendar")
 public class ScheduleCalendarWidget extends BaseWidget {
 
+    public static final int DEFAULT_SELECTED_DATE_POSITION = 1;
     private List<CalendarDayWidget> calendarDays;
 
     protected ScheduleCalendarWidget(WebElement element) {
@@ -28,33 +30,29 @@ public class ScheduleCalendarWidget extends BaseWidget {
 
     @Step("Select {date} in the calendar")
     public void selectDay(final LocalDate date) {
-        final LocalDate convertedDate = CalendarDayWidget.toCalendarDate(date);
-
         OptionalInt opt = IntStream.range(0, calendarDays.size())
-                .filter(i -> convertedDate.equals(calendarDays.get(i).getDate(i + 1)))
+                .filter(i -> date.equals(calendarDays.get(i).getDate(i + 1)))
                 .findFirst();
 
         if (opt.isPresent()) {
-            if (isOperationalDay(convertedDate)) {
+            if (isOperationalDay(date)) {
                 CalendarDayWidget calendarDay = calendarDays.get(opt.getAsInt());
                 calendarDay.select();
             } else {
                 throw new RuntimeException(String.format("Can not select the date that isn't operational: %s\nOperational days: %s",
-                        convertedDate.toString(), getOperationalDates().stream().map(LocalDate::toString).collect(Collectors.joining(", "))));
+                        date.toString(), getOperationalDates().stream().map(LocalDate::toString).collect(Collectors.joining(", "))));
             }
         } else {
-            throw new RuntimeException("A such date was not found: " + convertedDate.toString());
+            throw new RuntimeException("A such date was not found: " + date.toString());
         }
     }
 
     public boolean isDaySelected(final LocalDate date) {
-        final LocalDate convertedDate = CalendarDayWidget.toCalendarDate(date);
-        return getSelectedDate().equals(convertedDate);
+        return getSelectedDate().equals(date);
     }
 
     public boolean isOperationalDay(final LocalDate date) {
-        final LocalDate convertedDate = CalendarDayWidget.toCalendarDate(date);
-        return getOperationalDates().contains(convertedDate);
+        return getOperationalDates().contains(date);
     }
 
     public List<LocalDate> getOperationalDates() {
@@ -102,14 +100,10 @@ public class ScheduleCalendarWidget extends BaseWidget {
 
     // get selected calendar day element paired with its position within the calendar
     private Pair<Integer, CalendarDayWidget> getSelectedCalendarDayPair() {
-        LOGGER.debug("Getting selected calendar day pair");
-
         OptionalInt optIndex = IntStream.range(0, calendarDays.size()).filter(i -> calendarDays.get(i).isSelected()).findFirst();
         if (optIndex.isPresent()) {
             int index = optIndex.getAsInt();
-            Pair<Integer, CalendarDayWidget> pair = Pair.of(index + 1, calendarDays.get(index));
-            LOGGER.debug(String.format("The pair is (%s, %s)", pair.getKey(), pair.getValue().getDisplayDate()));
-            return pair;
+            return Pair.of(index + 1, calendarDays.get(index));
         }
         throw new RuntimeException("No selected date found");
     }

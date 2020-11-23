@@ -50,9 +50,10 @@ public class TestListener implements ITestListener, IConfigurationListener {
                 byte[] imageBytes = Device.getScreenshot();
                 String screenshotFileName = iTestResult.getName() + "_" + Instant.now().toEpochMilli() + ".png";
                 File imageFile = new File(Paths.get(Constants.PROJECT_REPORT_SCREENSHOT_FOLDER, screenshotFileName).toUri());
+                imageFile.mkdirs();
                 try {
                     ImageIO.write(ImageIO.read(new ByteArrayInputStream(imageBytes)), "png", imageFile);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     LOGGER.warn(e.getMessage());
                 }
             }

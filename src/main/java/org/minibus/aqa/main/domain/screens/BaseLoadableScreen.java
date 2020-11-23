@@ -23,10 +23,10 @@ public abstract class BaseLoadableScreen extends BaseScreen implements Loadable 
         return VisibilityHelper.isVisible((progressBar), ConfigManager.getGeneralConfig().elementTimeout() / 2);
     }
 
-    @Step("Wait for screen loading ({timeoutSec} sec)")
+    @Step("Wait for screen to load ({timeoutSec} sec)")
     @Override
     public boolean waitForLoading(int timeoutSec) {
-        return VisibilityHelper.isInvisible((progressBar), timeoutSec);
+        return VisibilityHelper.isInvisible(progressBar, timeoutSec);
     }
 
     protected AndroidElement getProgressBar() {

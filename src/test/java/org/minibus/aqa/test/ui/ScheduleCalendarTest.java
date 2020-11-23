@@ -1,7 +1,9 @@
 package org.minibus.aqa.test.ui;
 
 import org.minibus.aqa.main.core.helpers.DateHelper;
+import org.minibus.aqa.main.core.helpers.RandomHelper;
 import org.minibus.aqa.main.domain.api.models.RouteDTO;
+import org.minibus.aqa.main.domain.screens.schedule.ScheduleCalendarWidget;
 import org.minibus.aqa.main.domain.screens.schedule.ScheduleScreen;
 import org.minibus.aqa.test.TestGroup;
 import org.testng.annotations.Test;
@@ -35,14 +37,35 @@ public class ScheduleCalendarTest extends BaseUiTest {
     @Test(groups = {TestGroup.UI},
             description = "When on the Schedule screen then the calendar has 1 day selected by default")
     public void testWhenOnScheduleScreenThenCalendarHasFirstDaySelected() {
+        final int selectedDatePosition = ScheduleCalendarWidget.DEFAULT_SELECTED_DATE_POSITION;
+
         ScheduleScreen scheduleScreen = new ScheduleScreen();
         scheduleScreen.waitForLoading();
 
-        final int selectedDatePosition = 1;
         final int actualSelectedDatePosition = scheduleScreen.getCalendar().getSelectedDatePosition();
 
         test.assertTrue(scheduleScreen.isOpened(), "'Schedule' screen is opened");
         test.assertEquals(actualSelectedDatePosition, selectedDatePosition, "default selected calendar date position is correct");
+    }
+
+    @Test(groups = {TestGroup.UI},
+            description = "When user change calendar date then active date changes")
+    public void testWhenChangeCalendarDateThenActiveDateChanges() {
+        ScheduleScreen scheduleScreen = new ScheduleScreen();
+        scheduleScreen.waitForLoading();
+
+        test.assertTrue(scheduleScreen.isOpened(), "'Schedule' screen is opened");
+
+        final int selectedDatePosition = scheduleScreen.getCalendar().getSelectedDatePosition();
+        LocalDate selectedDate = scheduleScreen.getCalendar().getSelectedDate();
+        List<LocalDate> operationalDates = scheduleScreen.getCalendar().getOperationalDates();
+
+        scheduleScreen.getCalendar().selectDay(RandomHelper.getAny(operationalDates, selectedDate));
+        scheduleScreen.waitForContentUpdating();
+
+        final int newSelectedDatePosition = scheduleScreen.getCalendar().getSelectedDatePosition();
+
+        test.assertNotEquals(newSelectedDatePosition, selectedDatePosition, "active calendar date changes");
     }
 
     @Test(groups = {TestGroup.UI},

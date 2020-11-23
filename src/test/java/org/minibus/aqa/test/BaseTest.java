@@ -22,6 +22,8 @@ public abstract class BaseTest {
 
     @BeforeSuite(alwaysRun = true)
     public void beforeSuite(ITestContext context) {
+        LOGGER.debug("System environment variables: {}", System.getenv());
+
         String passedTestEnv = ConfigManager.getGeneralConfig().environment();
         RestAssured.baseURI = AppEnvironment.STAGE.toString().equals(passedTestEnv)
                 ? ConfigManager.getApiConfig().stageBaseUrl()

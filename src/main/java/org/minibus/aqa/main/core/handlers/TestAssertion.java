@@ -14,48 +14,43 @@ import org.slf4j.LoggerFactory;
 import org.testng.asserts.Assertion;
 import org.testng.asserts.IAssert;
 
+import java.beans.Introspector;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 
 public class TestAssertion extends Assertion {
-    private static final Logger LOGGER = LogManager.getLogger(TestAssertion.class);
 
     @Override
     public void onAssertSuccess(IAssert<?> iAssert) {
         String assertionMessage = iAssert.getMessage();
 
         if (assertionMessage != null) {
-            String actualResult = String.valueOf(iAssert.getActual());
-            Allure.step(String.format("Assert that %s [RESULT:%s]", assertionMessage, actualResult));
+            Allure.step(String.format("Assert that %s (RESULT:%s)", Introspector.decapitalize(assertionMessage), iAssert.getActual()));
+            Allure.getLifecycle().updateStep(x -> {
+                x.setStatus(Status.PASSED);
+                x.setStatusDetails(new StatusDetails().setMessage(assertionMessage));
+            });
         }
-
-        // LOGGER.info(String.format("%s [RESULT:%s][PASSED]", assertionMessage, iAssert.getActual()));
-
-//        Allure.getLifecycle().updateStep(x -> {
-//            x.setStatus(Status.PASSED);
-//            x.setStatusDetails(new StatusDetails().setMessage(assertionMessage));
-//        });
 
         super.onAssertSuccess(iAssert);
     }
 
-    @Step("Assert: {iAssert.m_message} [FAILED]")
     @Override
     public void onAssertFailure(IAssert<?> iAssert, AssertionError assertionError) {
-        String assertionMessage = iAssert.getMessage();
+        String assertionMessage = iAssert.getMessage() == null ? assertionError.getMessage() : Introspector.decapitalize(iAssert.getMessage());
 
-        // LOGGER.info(String.format("%s [RESULT:%s][FAILED]", assertionMessage, iAssert.getActual()));
+        Allure.step(String.format("Assert that %s (RESULT:%s)", assertionMessage, iAssert.getActual()));
 
-//        pushAttachment(assertionMessage);
-//        pushScreenshot(Device.getDriver().getScreenshotAs(OutputType.BASE64));
-//
-//        Allure.getLifecycle().updateStep(x -> {
-//            x.setStatus(Status.FAILED);
-//            x.setStatusDetails(new StatusDetails().setMessage(assertionMessage));
-//            x.setDescription(assertionError.getMessage());
-//        });
+        pushAttachment(assertionError.getMessage());
+        pushScreenshot(Device.getDriver().getScreenshotAs(OutputType.BASE64));
+
+        Allure.getLifecycle().updateStep(x -> {
+            x.setStatus(Status.FAILED);
+            x.setStatusDetails(new StatusDetails().setMessage(assertionMessage));
+            x.setDescription(assertionError.getMessage());
+        });
 
         super.onAssertFailure(iAssert, assertionError);
     }

@@ -35,6 +35,10 @@ public abstract class BaseScreen implements Screen {
         return textTitle;
     }
 
+    protected int getScreenTimeout() {
+        return screenTimeout;
+    }
+
     @Override
     public abstract boolean isOpened(int timeoutSec);
 

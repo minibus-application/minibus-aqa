@@ -43,8 +43,8 @@ public class ScheduleScreen extends BaseLoadableScreen {
     private List<RouteTripWidget> routeTrips;
 
     private static final String SCREEN_NAME = "Schedule";
-    private static final String DEF_DEP_FIELD_VAL = "From";
-    private static final String DEF_ARR_FIELD_VAL = "To";
+    private static final String DEFAULT_DEP_FIELD_VALUE = "From";
+    private static final String DEFAULT_ARR_FIELD_VALUE = "To";
 
     public ScheduleScreen(AndroidDriver<MobileElement> driver) {
         super(driver, SCREEN_NAME);
@@ -64,9 +64,15 @@ public class ScheduleScreen extends BaseLoadableScreen {
         return VisibilityHelper.isVisible(progressHud, 0) || VisibilityHelper.isVisible(getProgressBar(), 0);
     }
 
+    @Step("Wait for Schedule screen to load ({timeoutSec} sec)")
     @Override
     public boolean waitForLoading(int timeoutSec) {
-        return VisibilityHelper.isInvisible(progressHud, timeoutSec) && super.waitForLoading(timeoutSec);
+        return VisibilityHelper.areInvisible(List.of(progressHud, getProgressBar()), timeoutSec);
+    }
+
+    @Step("Wait for content to update")
+    public boolean waitForContentUpdating() {
+        return VisibilityHelper.isInvisible(getProgressBar(), getScreenTimeout());
     }
 
     @Step("Click on route direction floating action button")
@@ -121,12 +127,12 @@ public class ScheduleScreen extends BaseLoadableScreen {
 
     public boolean isDepartureCitySet() {
         String departureCityValue = fieldDepartureCity.getText();
-        return !departureCityValue.isEmpty() && !departureCityValue.equals(DEF_DEP_FIELD_VAL);
+        return !departureCityValue.isEmpty() && !departureCityValue.equals(DEFAULT_DEP_FIELD_VALUE);
     }
 
     public boolean isArrivalCitySet() {
         String arrivalCityValue = fieldArrivalCity.getText();
-        return !arrivalCityValue.isEmpty() && !arrivalCityValue.equals(DEF_ARR_FIELD_VAL);
+        return !arrivalCityValue.isEmpty() && !arrivalCityValue.equals(DEFAULT_ARR_FIELD_VALUE);
     }
 
     public boolean isScheduleAvailable() {

@@ -71,10 +71,4 @@ public class CalendarDayWidget extends Widget {
     public boolean isEnabled() {
         return Boolean.parseBoolean(getWrappedElement().getAttribute("enabled"));
     }
-
-    protected static LocalDate toCalendarDate(LocalDate date) {
-        final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_PATTERN, Constants.APP_LOCALE);
-        String formatted = date.format(formatter);
-        return LocalDate.parse(formatted, formatter);
-    }
 }
