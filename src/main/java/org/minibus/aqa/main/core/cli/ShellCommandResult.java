@@ -1,13 +1,14 @@
 package org.minibus.aqa.main.core.cli;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.minibus.aqa.main.Constants;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.minibus.aqa.main.core.cli.ShellCommandExecutor.DEFAULT_PID;
 
 public class ShellCommandResult {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ShellCommandResult.class);
+    private static final Logger LOGGER = LogManager.getLogger(ShellCommandResult.class);
     private final String pid;
     private final int exitCode;
     private final int executionTime;

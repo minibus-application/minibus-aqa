@@ -1,5 +1,8 @@
 package org.minibus.aqa.main.core.handlers;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.minibus.aqa.main.core.env.Device;
 import org.minibus.aqa.main.core.env.DeviceType;
 import org.minibus.aqa.main.core.env.SpecificDevice;
 import org.minibus.aqa.main.core.env.config.ConfigManager;
@@ -15,13 +18,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class TestInterceptor implements IMethodInterceptor {
+    private static final Logger LOGGER = LogManager.getLogger(TestInterceptor.class);
 
     @Override
     public List<IMethodInstance> intercept(List<IMethodInstance> methods, ITestContext iTestContext) {
         List<IMethodInstance> methodInstances = new LinkedList<>(methods);
         DeviceGeneralConfig config = ConfigManager.getDeviceGeneralConfig();
 
-        return methodInstances.stream()
+        methodInstances = methodInstances.stream()
                 .filter(i -> {
                     Method m = i.getMethod().getConstructorOrMethod().getMethod();
 
@@ -40,5 +44,9 @@ public class TestInterceptor implements IMethodInterceptor {
                     }
                 })
                 .collect(Collectors.toList());
+
+        LOGGER.debug("Tests after filtering: {}", methodInstances.size());
+
+        return methodInstances;
     }
 }

@@ -1,12 +1,14 @@
 package org.minibus.aqa.main.domain.screens;
 
 import io.appium.java_client.pagefactory.Widget;
+import org.apache.logging.log4j.LogManager;
+import org.minibus.aqa.main.core.handlers.TestListener;
 import org.openqa.selenium.WebElement;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+
 
 public abstract class BaseWidget extends Widget {
-    protected static final Logger LOGGER = LoggerFactory.getLogger(BaseWidget.class);
+    protected static final Logger LOGGER = LogManager.getLogger(BaseWidget.class);
 
     public BaseWidget(WebElement element) {
         super(element);

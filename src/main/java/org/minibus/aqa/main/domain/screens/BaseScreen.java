@@ -5,9 +5,11 @@ import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.AndroidElement;
 import io.appium.java_client.pagefactory.AndroidFindBy;
 import io.appium.java_client.pagefactory.AppiumFieldDecorator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.minibus.aqa.main.core.env.config.ConfigManager;
+import org.minibus.aqa.main.core.helpers.VisibilityHelper;
 import org.openqa.selenium.support.PageFactory;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
@@ -17,7 +19,7 @@ public abstract class BaseScreen implements Screen {
     @AndroidFindBy(id = "tv_toolbar_title")
     private AndroidElement textTitle;
 
-    protected static final Logger LOGGER = LoggerFactory.getLogger(BaseScreen.class);
+    protected static final Logger LOGGER = LogManager.getLogger(BaseScreen.class);
     private AndroidDriver<MobileElement> driver;
     private final String screenName;
     private final int screenTimeout;

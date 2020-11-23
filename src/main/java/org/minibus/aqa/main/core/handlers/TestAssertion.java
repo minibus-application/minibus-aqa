@@ -6,9 +6,10 @@ import io.qameta.allure.Step;
 import io.qameta.allure.model.Status;
 import io.qameta.allure.model.StatusDetails;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.minibus.aqa.main.core.env.Device;
 import org.openqa.selenium.OutputType;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.asserts.Assertion;
 import org.testng.asserts.IAssert;
@@ -19,8 +20,7 @@ import java.util.Base64;
 import java.util.List;
 
 public class TestAssertion extends Assertion {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestAssertion.class);
+    private static final Logger LOGGER = LogManager.getLogger(TestAssertion.class);
 
     @Override
     public void onAssertSuccess(IAssert<?> iAssert) {

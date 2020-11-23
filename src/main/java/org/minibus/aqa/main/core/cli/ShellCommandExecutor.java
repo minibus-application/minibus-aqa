@@ -2,8 +2,10 @@ package org.minibus.aqa.main.core.cli;
 
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.minibus.aqa.main.Constants;
-import org.slf4j.Logger;
+import org.minibus.aqa.main.core.helpers.ImageProcessor;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
@@ -15,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ShellCommandExecutor {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ShellCommandExecutor.class);
+    private static final Logger LOGGER = LogManager.getLogger(ShellCommandExecutor.class);
     private static final int COMMAND_TIMEOUT = 15;
     public static final long DEFAULT_PID = -1;
 

@@ -2,13 +2,15 @@ package org.minibus.aqa.main.core.helpers;
 
 import io.appium.java_client.MobileElement;
 import io.appium.java_client.android.AndroidDriver;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.minibus.aqa.main.core.env.config.ConfigManager;
 import org.minibus.aqa.main.core.env.Device;
+import org.minibus.aqa.main.core.handlers.TestStepLogger;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.FluentWait;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
@@ -16,7 +18,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class VisibilityHelper {
-    private static final Logger LOGGER = LoggerFactory.getLogger(VisibilityHelper.class);
+    private static final Logger LOGGER = LogManager.getLogger(VisibilityHelper.class);
     private static final int DEFAULT_ELEMENT_TIMEOUT = ConfigManager.getGeneralConfig().elementTimeout();
 
     public static boolean isVisible(MobileElement el, int timeoutSec) {

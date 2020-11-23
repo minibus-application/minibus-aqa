@@ -5,6 +5,8 @@ import io.appium.java_client.Setting;
 import io.appium.java_client.android.AndroidDriver;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.minibus.aqa.main.core.env.config.AppiumConfig;
 import org.minibus.aqa.main.core.env.config.ConfigManager;
 import org.minibus.aqa.main.core.env.config.DeviceConfig;
@@ -15,8 +17,6 @@ import org.minibus.aqa.main.core.cli.AdbCommandExecutor;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.remote.DesiredCapabilities;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -30,8 +30,9 @@ import static io.appium.java_client.remote.AndroidMobileCapabilityType.*;
 import static io.appium.java_client.remote.MobileCapabilityType.*;
 
 public class Device {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Device.class);
+    private static final Logger LOGGER = LogManager.getLogger(Device.class);
     private static ThreadLocal<AndroidDriver<MobileElement>> driver = new ThreadLocal<>();
+    private static List<Device> devices = new ArrayList<>();
 
     private static DesiredCapabilities resolveCapabilities(DeviceConfig deviceConfig, DeviceGeneralConfig config) {
         AppiumConfig appiumConfig = ConfigManager.getAppiumConfig();
@@ -78,7 +79,7 @@ public class Device {
         return path;
     }
 
-    public static synchronized AndroidDriver<MobileElement> create(String serverUrl, DeviceConfig deviceConfig, DeviceGeneralConfig config) {
+    public synchronized AndroidDriver<MobileElement> create(String serverUrl, DeviceConfig deviceConfig, DeviceGeneralConfig config) {
         try {
             return create(new URL(serverUrl), deviceConfig, config);
         } catch (MalformedURLException e) {
@@ -86,8 +87,8 @@ public class Device {
         }
     }
 
-    public static synchronized AndroidDriver<MobileElement> create(URL serverUrl, DeviceConfig deviceConfig, DeviceGeneralConfig config) {
-        LOGGER.info(String.format("Starting new driver session: %s", serverUrl));
+    public synchronized AndroidDriver<MobileElement> create(URL serverUrl, DeviceConfig deviceConfig, DeviceGeneralConfig config) {
+        LOGGER.info("Starting driver session: {}", serverUrl);
 
         AndroidDriver<MobileElement> initializedDriver = new AndroidDriver<>(serverUrl, resolveCapabilities(deviceConfig, config));
         initializedDriver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
@@ -95,8 +96,10 @@ public class Device {
         initializedDriver.setSetting(Setting.WAIT_FOR_SELECTOR_TIMEOUT, 200);
 
         driver.set(initializedDriver);
+        devices.add(this);
 
-        LOGGER.info(String.format("Driver session has started: %s", initializedDriver.getSessionId().toString()));
+        LOGGER.info("Driver session id: {}", initializedDriver.getSessionId().toString());
+        LOGGER.info("Appium desired capabilities: {}", initializedDriver.getCapabilities().asMap());
         return getDriver();
     }
 
@@ -104,10 +107,11 @@ public class Device {
         return driver.get();
     }
 
-    public static boolean quit() {
+    public boolean quit() {
         if (driver.get() != null) {
             if (driver.get().getSessionId() != null) {
-                LOGGER.info(String.format("Closing driver session: %s", driver.get().getSessionId().toString()));
+                LOGGER.info("Closing driver session: {}", driver.get().getSessionId().toString());
+
                 driver.get().closeApp();
                 driver.get().quit();
                 driver.remove();
@@ -139,28 +143,26 @@ public class Device {
             try {
                 imageBytes = FileUtils.readFileToByteArray(pulledFile);
             } catch (Exception e1) {
-                LOGGER.error("An error while reading the screenshot file to bytes: " + pulledFile.getAbsolutePath());
+                LOGGER.error("Exception while reading the screenshot file to bytes: {}", pulledFile.getAbsolutePath());
             }
             return imageBytes;
         } catch (NullPointerException e) {
-            LOGGER.error("An error while taking the screenshot. The driver is null or hasn't initialised yet");
+            LOGGER.error("Exception while taking the screenshot. The driver is null or hasn't initialised yet");
         }
 
         return imageBytes;
     }
 
-/*    static {
+    static {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             if (getDriver() != null) {
                 try {
-                    LOGGER.info(String.format("Terminating driver session: %s", getDriver().getSessionId().toString()));
-                    getDriver().quit();
+                    LOGGER.info("Shutdown driver session: {}", getDriver().getSessionId().toString());
+                    devices.forEach(Device::quit);
                 } catch (Exception e) {
-                    LOGGER.warn("Can't terminate driver session:\n" + e.getMessage());
+                    LOGGER.warn("Can not shutdown driver session:\n{}", e.getMessage());
                 }
-            } else {
-                LOGGER.warn("Can't execute shutdown hook, device driver is null");
             }
         }));
-    }*/
+    }
 }

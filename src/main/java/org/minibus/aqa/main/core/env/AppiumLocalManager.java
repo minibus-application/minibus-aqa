@@ -2,16 +2,18 @@ package org.minibus.aqa.main.core.env;
 
 import io.appium.java_client.service.local.AppiumDriverLocalService;
 import io.appium.java_client.service.local.AppiumServiceBuilder;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.minibus.aqa.main.core.cli.ShellCommandResult;
 import org.minibus.aqa.main.core.env.config.ConfigManager;
 import org.minibus.aqa.main.core.cli.ShellCommandExecutor;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
 import java.time.LocalDateTime;
 
 public class AppiumLocalManager {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AppiumLocalManager.class);
+    private static final Logger LOGGER = LogManager.getLogger(AppiumLocalManager.class);
     private static final int TERMINATING_TIMEOUT = 15;
     private static AppiumLocalManager instance;
     private static AppiumDriverLocalService service;

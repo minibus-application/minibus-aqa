@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Configuration debug="true">
+
+    <Appenders>
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout disableAnsi="false" pattern="%d{ISO8601} %highlight{${LOG_LEVEL_PATTERN:-%5p}}{DEBUG=black} %style{%thread}{magenta} %style{%-15.18c{1}}{cyan} : %msg%n"/>
+        </Console>
+    </Appenders>
+
+    <Loggers>
+        <Root level="ALL">
+            <AppenderRef ref="console"/>
+        </Root>
+    </Loggers>
+
+</Configuration >

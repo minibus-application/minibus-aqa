@@ -28,11 +28,11 @@ public abstract class BaseUiTest extends BaseTest {
 
         if (ConfigManager.getAppiumConfig().host() != null && ConfigManager.getAppiumConfig().port() != null) {
             // assuming the appium server is standalone
-            driver = Device.create(ConfigManager.getAppiumConfig().url(),
+            driver = new Device().create(ConfigManager.getAppiumConfig().url(),
                     ConfigManager.getDeviceConfig(), ConfigManager.getDeviceGeneralConfig());
         } else {
             AppiumLocalManager.getService(new AppiumServiceBuilder().usingAnyFreePort()).start();
-            driver = Device.create(AppiumLocalManager.getService().getServiceUrl(),
+            driver = new Device().create(AppiumLocalManager.getService().getServiceUrl(),
                     ConfigManager.getDeviceConfig(), ConfigManager.getDeviceGeneralConfig());
         }
     }
@@ -43,11 +43,11 @@ public abstract class BaseUiTest extends BaseTest {
 
         if (!isAppOpened(appPackage, ConfigManager.getGeneralConfig().elementTimeout())) {
             if (ConfigManager.getDeviceGeneralConfig().fullReset()) {
-                LOGGER.info("The app isn't installed");
-                LOGGER.info("Launch the app (install and open)");
+                LOGGER.debug(String.format("%s is not installed", appPackage));
+                LOGGER.debug(String.format("Launching %s", appPackage));
                 getDriver().launchApp();
             } else {
-                LOGGER.info("Open the app " + appPackage);
+                LOGGER.debug(String.format("Opening %s", appPackage));
                 getDriver().activateApp(appPackage);
             }
         }
@@ -60,25 +60,26 @@ public abstract class BaseUiTest extends BaseTest {
 
     @AfterSuite(groups = {TestGroup.UI})
     public void afterSuite(ITestContext context) {
-        Device.quit();
+        Device.getDriver().quit();
 
         if (AppiumLocalManager.isRunning()) {
             AppiumLocalManager.stop();
         }
     }
 
-    private boolean isAppOpened(String appPackage, int timeout) {
-        LocalDateTime endTime = LocalDateTime.now().plusSeconds(timeout);
-        LOGGER.info(String.format("Wait for the app '%s' to be opened (%s sec)", appPackage, timeout));
+    private boolean isAppOpened(String appPackage, int timeoutSec) {
+        LocalDateTime endTime = LocalDateTime.now().plusSeconds(timeoutSec);
+        LOGGER.debug(String.format("Waiting for %s to open (%s sec)", appPackage, timeoutSec));
+
         do {
             if (getDriver().queryAppState(appPackage).equals(ApplicationState.RUNNING_IN_FOREGROUND)) {
-                LOGGER.info("The app is opened");
+                LOGGER.debug(String.format("%s is opened", appPackage));
                 return true;
             }
         }
         while (LocalDateTime.now().isBefore(endTime));
 
-        LOGGER.info("The app isn't opened");
+        LOGGER.debug(String.format("%s is not opened", appPackage));
         return false;
     }
 }

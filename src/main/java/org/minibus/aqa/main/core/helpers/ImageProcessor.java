@@ -1,24 +1,18 @@
 package org.minibus.aqa.main.core.helpers;
 
+import com.sun.istack.NotNull;
 import io.appium.java_client.MobileElement;
-import org.apache.commons.io.FileUtils;
-import org.codehaus.commons.nullanalysis.NotNull;
-import org.minibus.aqa.main.Constants;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.OutputType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.UUID;
 
 public class ImageProcessor {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ImageProcessor.class);
+    private static final Logger LOGGER = LogManager.getLogger(ImageProcessor.class);
     private static final int DEFAULT_THRESHOLD_VALUE = 170;
 
     public static BufferedImage thresholdImage(@NotNull final File imageFile) {

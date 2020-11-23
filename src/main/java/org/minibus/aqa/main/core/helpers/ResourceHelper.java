@@ -1,7 +1,10 @@
 package org.minibus.aqa.main.core.helpers;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.minibus.aqa.main.Constants;
+import org.minibus.aqa.main.core.cli.ShellCommandResult;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,7 +14,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class ResourceHelper {
-
+    private static final Logger LOGGER = LogManager.getLogger(ResourceHelper.class);
     private static ResourceHelper instance;
     private List<Path> resources;
 
