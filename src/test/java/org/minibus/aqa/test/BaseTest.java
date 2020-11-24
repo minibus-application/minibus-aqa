@@ -11,6 +11,8 @@ import org.minibus.aqa.main.core.handlers.TestAssertion;
 import org.minibus.aqa.main.core.handlers.TestInterceptor;
 import org.minibus.aqa.main.core.env.config.ConfigManager;
 import org.minibus.aqa.main.core.handlers.TestListener;
+import org.minibus.aqa.main.domain.api.helpers.RoutesHelper;
+import org.minibus.aqa.main.domain.api.models.RouteDTO;
 import org.testng.ITestContext;
 import org.testng.annotations.*;
 
@@ -33,5 +35,11 @@ public abstract class BaseTest {
                 .setContentType(ContentType.JSON)
                 .setAccept(ContentType.JSON)
                 .build();
+    }
+
+    @DataProvider(name = "dataProvider_RouteWithNonOperationalDays")
+    public Object[] getRouteWithNonOperationalDays() {
+        RouteDTO route = RoutesHelper.findAnyRouteWithNonOperationalDays();
+        return new Object[] {route};
     }
 }

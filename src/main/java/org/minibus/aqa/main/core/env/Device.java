@@ -92,8 +92,8 @@ public class Device {
 
         AndroidDriver<MobileElement> initializedDriver = new AndroidDriver<>(serverUrl, resolveCapabilities(deviceConfig, config));
         initializedDriver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
-        initializedDriver.setSetting(Setting.WAIT_FOR_IDLE_TIMEOUT, 200);
-        initializedDriver.setSetting(Setting.WAIT_FOR_SELECTOR_TIMEOUT, 200);
+        initializedDriver.setSetting(Setting.WAIT_FOR_IDLE_TIMEOUT, 50);
+        initializedDriver.setSetting(Setting.WAIT_FOR_SELECTOR_TIMEOUT, 50);
 
         driver.set(initializedDriver);
         devices.add(this);

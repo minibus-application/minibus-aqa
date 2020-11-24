@@ -5,11 +5,12 @@ import io.appium.java_client.pagefactory.AndroidFindBy;
 import io.appium.java_client.pagefactory.Widget;
 import io.qameta.allure.Step;
 import org.minibus.aqa.main.core.helpers.ImageProcessor;
+import org.minibus.aqa.main.domain.screens.BaseWidget;
 import org.minibus.aqa.main.domain.screens.schedule.ScheduleScreen;
 import org.openqa.selenium.WebElement;
 
 @AndroidFindBy(id = "ll_city_container")
-public class CityWidget extends Widget {
+public class CityWidget extends BaseWidget {
 
     @AndroidFindBy(id = "tv_city_title")
     private AndroidElement textCityName;
@@ -24,9 +25,8 @@ public class CityWidget extends Widget {
         super(element);
     }
 
-    @Step("Click on the city")
     public ScheduleScreen select() {
-        this.getWrappedElement().click();
+        super.click();
         return new ScheduleScreen();
     }
 

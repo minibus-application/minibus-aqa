@@ -1,8 +1,8 @@
 package org.minibus.aqa.main.domain.screens;
 
 import io.appium.java_client.pagefactory.Widget;
+import io.qameta.allure.Step;
 import org.apache.logging.log4j.LogManager;
-import org.minibus.aqa.main.core.handlers.TestListener;
 import org.openqa.selenium.WebElement;
 import org.apache.logging.log4j.Logger;
 
@@ -14,6 +14,7 @@ public abstract class BaseWidget extends Widget {
         super(element);
     }
 
+    @Step("Click on the element")
     protected void click() {
         getWrappedElement().click();
     }

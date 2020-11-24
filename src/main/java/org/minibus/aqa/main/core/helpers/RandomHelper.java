@@ -38,7 +38,7 @@ public class RandomHelper {
         T res = list.stream()
                 .filter(x -> !x.equals(except))
                 .collect(Collectors.toList())
-                .get(new Random().nextInt(list.size()));
+                .get(new Random().nextInt(list.size() - 1));
 
         LOGGER.debug("Result is: {}", res);
         return res;

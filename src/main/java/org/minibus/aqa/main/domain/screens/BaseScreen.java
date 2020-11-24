@@ -53,7 +53,7 @@ public abstract class BaseScreen implements Screen {
     }
 
     @Override
-    public String getName() {
+    public String getScreenName() {
         return screenName;
     }
 

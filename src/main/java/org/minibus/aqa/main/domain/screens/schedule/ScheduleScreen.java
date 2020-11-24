@@ -83,13 +83,17 @@ public class ScheduleScreen extends BaseLoadableScreen {
     @Step("Open departure cities screen")
     public CitiesScreen openDepartureCitiesScreen() {
         fieldDepartureCity.click();
-        return new CitiesScreen(CitiesScreen.Type.DEPARTURE);
+        CitiesScreen citiesScreen = new CitiesScreen(CitiesScreen.Type.DEPARTURE);
+        citiesScreen.waitForLoading();
+        return citiesScreen;
     }
 
     @Step("Open arrival cities screen")
     public CitiesScreen openArrivalCitiesScreen() {
         fieldArrivalCity.click();
-        return new CitiesScreen(CitiesScreen.Type.ARRIVAL);
+        CitiesScreen citiesScreen = new CitiesScreen(CitiesScreen.Type.ARRIVAL);
+        citiesScreen.waitForLoading();
+        return citiesScreen;
     }
 
     public ScheduleCalendarWidget getCalendar() {

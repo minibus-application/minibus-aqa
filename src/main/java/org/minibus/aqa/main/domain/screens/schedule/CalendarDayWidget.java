@@ -6,6 +6,7 @@ import io.appium.java_client.pagefactory.Widget;
 import io.qameta.allure.Step;
 import org.minibus.aqa.main.Constants;
 import org.minibus.aqa.main.core.helpers.ImageProcessor;
+import org.minibus.aqa.main.domain.screens.BaseWidget;
 import org.openqa.selenium.WebElement;
 
 import java.time.*;
@@ -13,7 +14,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 
 @AndroidFindBy(id = "ll_date_container")
-public class CalendarDayWidget extends Widget {
+public class CalendarDayWidget extends BaseWidget {
 
     @AndroidFindBy(id = "tv_day_of_week")
     private AndroidElement textDayOfWeek;
@@ -65,7 +66,7 @@ public class CalendarDayWidget extends Widget {
     }
 
     public boolean isSelected() {
-        return ImageProcessor.hasColor(btnDayOfMonth, ImageProcessor.ImageColor.BLUE);
+        return Boolean.parseBoolean(btnDayOfMonth.getAttribute("checked"));
     }
 
     public boolean isEnabled() {

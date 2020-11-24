@@ -26,7 +26,9 @@ public abstract class BaseLoadableScreen extends BaseScreen implements Loadable 
     @Step("Wait for screen to load ({timeoutSec} sec)")
     @Override
     public boolean waitForLoading(int timeoutSec) {
-        return VisibilityHelper.isInvisible(progressBar, timeoutSec);
+        boolean isLoaded = VisibilityHelper.isInvisible(progressBar, timeoutSec);
+        LOGGER.debug("'{}' screen is loaded", getScreenName());
+        return isLoaded;
     }
 
     protected AndroidElement getProgressBar() {

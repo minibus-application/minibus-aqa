@@ -21,7 +21,7 @@ public class CitiesScreen extends BaseLoadableScreen {
     private Type type;
 
     public CitiesScreen(Type type) {
-        super(Device.getDriver(), type.name());
+        super(Device.getDriver(), type.toString());
         this.type = type;
     }
 
@@ -34,7 +34,7 @@ public class CitiesScreen extends BaseLoadableScreen {
         return waitForLoading(timeoutSec);
     }
 
-    @Step("Select {cityName} city")
+    @Step("Select city: '{cityName}'")
     public ScheduleScreen selectCity(final String cityName) {
         ScheduleScreen scheduleScreen = getCityByName(cityName).select();
         scheduleScreen.isOpened();

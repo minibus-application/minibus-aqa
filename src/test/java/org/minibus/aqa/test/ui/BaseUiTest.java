@@ -41,7 +41,10 @@ public abstract class BaseUiTest extends BaseTest {
     public void beforeMethod() {
         String appPackage = ConfigManager.getDeviceGeneralConfig().appPackage();
 
-        if (!isAppOpened(appPackage, ConfigManager.getGeneralConfig().elementTimeout())) {
+        boolean isAppOpened = ConfigManager.getDeviceGeneralConfig().autoLaunch()
+                && isAppOpened(appPackage, ConfigManager.getGeneralConfig().elementTimeout());
+
+        if (!isAppOpened) {
             if (ConfigManager.getDeviceGeneralConfig().fullReset()) {
                 LOGGER.debug(String.format("%s is not installed", appPackage));
                 LOGGER.debug(String.format("Launching %s", appPackage));

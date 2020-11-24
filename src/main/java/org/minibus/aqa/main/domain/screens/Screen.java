@@ -9,7 +9,7 @@ public interface Screen {
 
     boolean isOpened(int timeoutSec);
 
-    String getName();
+    String getScreenName();
 
     String getTitle();
 
