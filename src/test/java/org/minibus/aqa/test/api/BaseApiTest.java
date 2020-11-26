@@ -1,5 +1,8 @@
 package org.minibus.aqa.test.api;
 
+import io.restassured.RestAssured;
+import io.restassured.filter.log.RequestLoggingFilter;
+import io.restassured.filter.log.ResponseLoggingFilter;
 import org.minibus.aqa.main.Constants;
 import org.minibus.aqa.main.domain.api.models.RouteDTO;
 import org.minibus.aqa.test.BaseTest;

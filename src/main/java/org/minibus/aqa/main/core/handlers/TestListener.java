@@ -10,11 +10,8 @@ import org.testng.*;
 import javax.imageio.ImageIO;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Paths;
-import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 
 
 public class TestListener implements ITestListener, IConfigurationListener {

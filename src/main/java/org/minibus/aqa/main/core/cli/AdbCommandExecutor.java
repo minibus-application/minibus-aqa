@@ -33,9 +33,9 @@ public class AdbCommandExecutor extends ShellCommandExecutor implements AdbComma
         return pull(null, fileOrigin, fileDest);
     }
 
-    public static File pull(String udid, String fileOrigin, String fileDest) {
-        adb(udid, PULL, fileOrigin, fileDest);
-        return new File(fileDest);
+    public static File pull(String udid, String fromPath, String toPath) {
+        adb(udid, PULL, fromPath, toPath);
+        return new File(toPath);
     }
 
     public static boolean isDeviceConnected(String udid) {
@@ -95,7 +95,7 @@ public class AdbCommandExecutor extends ShellCommandExecutor implements AdbComma
         return String.join(delimiter, getDevices(state));
     }
 
-    public static String getDeviceName(String serial) {
+    public static String getDeviceNameBySerial(String serial) {
         return adb(serial, "emu", "avd", "name")
                 .getRawStdout()
                 .split("\n")[0]
@@ -104,7 +104,7 @@ public class AdbCommandExecutor extends ShellCommandExecutor implements AdbComma
 
     public static String getConnectedDeviceSerial(String deviceName) {
         List<String> connectedDevices = getDevices(DeviceState.ONLINE);
-        return connectedDevices.stream().filter(s -> deviceName.equals(getDeviceName(s))).findFirst().orElse(StringUtils.EMPTY);
+        return connectedDevices.stream().filter(s -> deviceName.equals(getDeviceNameBySerial(s))).findFirst().orElse(StringUtils.EMPTY);
     }
 
     public static DeviceState getDeviceState(String udid) {

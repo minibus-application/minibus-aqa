@@ -34,9 +34,10 @@ public class CitiesScreen extends BaseLoadableScreen {
         return waitForLoading(timeoutSec);
     }
 
-    @Step("Select city: '{cityName}'")
+    @Step("Select '{cityName}' city")
     public ScheduleScreen selectCity(final String cityName) {
-        ScheduleScreen scheduleScreen = getCityByName(cityName).select();
+        getCityByName(cityName).click();
+        ScheduleScreen scheduleScreen = new ScheduleScreen();
         scheduleScreen.isOpened();
         return scheduleScreen;
     }
@@ -46,7 +47,7 @@ public class CitiesScreen extends BaseLoadableScreen {
         if (optCity.isPresent()) {
             return optCity.get();
         } else {
-            throw new RuntimeException("City with " + cityName + " name not found");
+            throw new RuntimeException(cityName + " city is not found in the list");
         }
     }
 

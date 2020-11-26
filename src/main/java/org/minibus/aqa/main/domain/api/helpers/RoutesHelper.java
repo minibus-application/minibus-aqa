@@ -1,36 +1,62 @@
 package org.minibus.aqa.main.domain.api.helpers;
 
-import org.minibus.aqa.main.domain.api.URI;
 import org.minibus.aqa.main.domain.api.models.RouteDTO;
-import org.testng.SkipException;
+import org.minibus.aqa.main.domain.data.schedule.DirectionData;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static io.restassured.RestAssured.when;
 import static org.minibus.aqa.main.domain.api.URI.ROUTES;
 
 public class RoutesHelper {
 
-    public static RouteDTO findOperationalRoute(LocalDate desiredDate, boolean skipIfAbsent) {
-        List<RouteDTO> routesResponse = when().get(ROUTES).then().extract().jsonPath().getList("$", RouteDTO.class);
-        RouteDTO route = null;
-        Optional<RouteDTO> opt = routesResponse.stream()
-                .filter(r -> r.getOpDays().contains(desiredDate.getDayOfWeek().getValue()))
-                .findFirst();
-        if (!opt.isPresent()) {
-            if (skipIfAbsent) throw new SkipException(String.format("Can't find operating route with %s desired date", desiredDate.toString()));
-        } else {
-            route = opt.get();
-        }
-        return route;
+    public static List<RouteDTO> getAllRoutes() {
+        return when().get(ROUTES).then().extract().jsonPath().getList("$", RouteDTO.class);
     }
 
-    public static RouteDTO findAnyRouteWithNonOperationalDays() {
-        List<RouteDTO> routesResponse = when().get(ROUTES).then().extract().jsonPath().getList("$", RouteDTO.class);
-        return routesResponse.stream()
+    public static List<RouteDTO> getAllRoutesByDepartureCity(String depCity) {
+        return getAllRoutes().stream()
+                .filter(r -> depCity.equals(r.getFrom().getName()))
+                .collect(Collectors.toList());
+    }
+
+    public static List<RouteDTO> getAllRoutesByArrivalCity(String arrCity) {
+        return getAllRoutes().stream()
+                .filter(r -> arrCity.equals(r.getTo().getName()))
+                .collect(Collectors.toList());
+    }
+    
+    public static List<RouteDTO> getAllRoutesExceptDirection(DirectionData direction) {
+        return getAllRoutes().stream()
+                .filter(r -> {
+                    return !direction.getDepartureCity().equals(r.getFrom().getName())
+                            && !direction.getArrivalCity().equals(r.getTo().getName());
+                })
+                .collect(Collectors.toList());
+    }
+
+    public static RouteDTO getRouteByDirection(DirectionData direction) {
+        return getAllRoutes().stream()
+                .filter(r -> {
+                    return direction.getDepartureCity().equals(r.getFrom().getName())
+                            && direction.getArrivalCity().equals(r.getTo().getName());
+                })
+                .findFirst()
+                .orElse(null);
+    }
+
+    public static RouteDTO getRouteByOperationalDate(LocalDate desiredDate) {
+        return getAllRoutes().stream()
+                .filter(r -> r.getOpDays().contains(desiredDate.getDayOfWeek().getValue()))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public static RouteDTO getAnyRouteWithNonOperationalDays() {
+        return getAllRoutes().stream()
                 .filter(route -> route.getOpDays().size() < DayOfWeek.values().length)
                 .findFirst()
                 .orElseThrow(() -> {

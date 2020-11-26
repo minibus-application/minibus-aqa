@@ -30,11 +30,6 @@ public class CalendarDayWidget extends BaseWidget {
         super(element);
     }
 
-    @Step("Click on the calendar day")
-    public void select() {
-        getWrappedElement().click();
-    }
-
     public String getDayOfWeek() {
         return textDayOfWeek.getText();
     }

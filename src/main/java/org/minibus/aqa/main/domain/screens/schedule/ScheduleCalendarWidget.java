@@ -36,7 +36,7 @@ public class ScheduleCalendarWidget extends BaseWidget {
 
         if (opt.isPresent()) {
             CalendarDayWidget calendarDay = calendarDays.get(opt.getAsInt());
-            calendarDay.select();
+            calendarDay.click();
         } else {
             throw new RuntimeException("Such date was not found: " + date.toString());
         }
@@ -70,6 +70,10 @@ public class ScheduleCalendarWidget extends BaseWidget {
 
     public int getSelectedDatePosition() {
         return getSelectedCalendarDayPair().getKey();
+    }
+
+    public int getSelectedDatesCount() {
+        return (int) calendarDays.stream().filter(CalendarDayWidget::isSelected).count();
     }
 
     private List<CalendarDayWidget> getCalendarDays() {

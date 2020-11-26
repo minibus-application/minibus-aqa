@@ -1,7 +1,7 @@
 package org.minibus.aqa.main.core.helpers;
 
 import com.sun.istack.NotNull;
-import io.appium.java_client.MobileElement;
+import io.appium.java_client.android.AndroidElement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.OutputType;
@@ -47,7 +47,7 @@ public class ImageProcessor {
         return null;
     }
 
-    public static boolean hasColor(MobileElement element, ImageColor color, ImageRegion region) {
+    public static boolean hasColor(AndroidElement element, ImageColor color, ImageRegion region) {
         BufferedImage image = getElementBufferedImage(element);
         int width = image.getWidth();
         int height = image.getHeight();
@@ -97,15 +97,15 @@ public class ImageProcessor {
         return colorMatchesWithinImage != 0 && (colorMatchesWithinImage >= totalColoredPixels / 2);
     }
 
-    public static boolean hasColor(MobileElement element, ImageColor color) {
+    public static boolean hasColor(AndroidElement element, ImageColor color) {
         return hasColor(getElementBufferedImage(element), color);
     }
 
-    public static boolean hasColor(MobileElement element, String hexColor) {
+    public static boolean hasColor(AndroidElement element, String hexColor) {
         return hasColor(element, getPureColor(Color.decode(hexColor).getRGB()));
     }
 
-    public static BufferedImage getElementBufferedImage(MobileElement element) {
+    public static BufferedImage getElementBufferedImage(AndroidElement element) {
         BufferedImage bufferedImage = null;
 
         try {

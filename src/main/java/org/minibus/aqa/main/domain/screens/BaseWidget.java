@@ -15,7 +15,7 @@ public abstract class BaseWidget extends Widget {
     }
 
     @Step("Click on the element")
-    protected void click() {
+    public void click() {
         getWrappedElement().click();
     }
 }

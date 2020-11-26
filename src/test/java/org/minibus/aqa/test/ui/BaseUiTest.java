@@ -1,12 +1,14 @@
 package org.minibus.aqa.test.ui;
 
-import io.appium.java_client.MobileElement;
+import com.google.common.collect.ImmutableMap;
 import io.appium.java_client.android.AndroidDriver;
+import io.appium.java_client.android.AndroidElement;
 import io.appium.java_client.appmanagement.ApplicationState;
 import io.appium.java_client.service.local.AppiumServiceBuilder;
 import org.minibus.aqa.main.core.env.AppiumLocalManager;
 import org.minibus.aqa.main.core.env.Device;
 import org.minibus.aqa.main.core.env.config.ConfigManager;
+import org.minibus.aqa.main.core.helpers.MobileCommandHelper;
 import org.minibus.aqa.test.BaseTest;
 import org.minibus.aqa.test.TestGroup;
 import org.testng.ITestContext;
@@ -17,10 +19,8 @@ import org.testng.annotations.BeforeSuite;
 
 import java.time.LocalDateTime;
 
-import static org.minibus.aqa.main.core.env.Device.getDriver;
-
 public abstract class BaseUiTest extends BaseTest {
-    protected AndroidDriver<MobileElement> driver;
+    protected AndroidDriver<AndroidElement> driver;
 
     @BeforeSuite(groups = {TestGroup.UI})
     public void beforeSuite(ITestContext context) {
@@ -35,6 +35,11 @@ public abstract class BaseUiTest extends BaseTest {
             driver = new Device().create(AppiumLocalManager.getService().getServiceUrl(),
                     ConfigManager.getDeviceConfig(), ConfigManager.getDeviceGeneralConfig());
         }
+
+        // disable device animations to increase performance and speed
+        MobileCommandHelper.shell("settings", "put", "global", "window_animation_scale", "0");
+        MobileCommandHelper.shell("settings", "put", "global", "transition_animation_scale", "0");
+        MobileCommandHelper.shell("settings", "put", "global", "animator_duration_scale", "0");
     }
 
     @BeforeMethod(groups = {TestGroup.UI})
@@ -63,11 +68,19 @@ public abstract class BaseUiTest extends BaseTest {
 
     @AfterSuite(groups = {TestGroup.UI})
     public void afterSuite(ITestContext context) {
+        MobileCommandHelper.shell("settings", "put", "global", "window_animation_scale", "1");
+        MobileCommandHelper.shell("settings", "put", "global", "transition_animation_scale", "1");
+        MobileCommandHelper.shell("settings", "put", "global", "animator_duration_scale", "1");
+
         Device.getDriver().quit();
 
         if (AppiumLocalManager.isRunning()) {
             AppiumLocalManager.stop();
         }
+    }
+
+    protected AndroidDriver<AndroidElement> getDriver() {
+        return driver;
     }
 
     private boolean isAppOpened(String appPackage, int timeoutSec) {

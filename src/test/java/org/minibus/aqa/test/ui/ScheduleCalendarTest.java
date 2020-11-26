@@ -25,7 +25,7 @@ public class ScheduleCalendarTest extends BaseUiTest {
         final int calendarCapacity = DayOfWeek.values().length;
         final List<LocalDate> calendarDates = DatesHelper.getDaysFromNow(calendarCapacity);
 
-        test.assertTrue(scheduleScreen.isOpened(), "'Schedule' screen is opened");
+        test.assertTrue(scheduleScreen.isOpened(), scheduleScreen.getScreenName() + " screen is opened");
         test.assertEquals(scheduleScreen.getCalendar().getCapacity(), calendarCapacity, "The calendar has desired capacity");
         test.assertEquals(scheduleScreen.getCalendar().getDates(), calendarDates, "The calendar has date values in the correct order");
     }
@@ -40,7 +40,7 @@ public class ScheduleCalendarTest extends BaseUiTest {
 
         final int actualSelectedDatePosition = scheduleScreen.getCalendar().getSelectedDatePosition();
 
-        test.assertTrue(scheduleScreen.isOpened(), "'Schedule' screen is opened");
+        test.assertTrue(scheduleScreen.isOpened(), scheduleScreen.getScreenName() + " screen is opened");
         test.assertEquals(actualSelectedDatePosition, selectedDatePosition, "Default selected calendar date position is correct");
     }
 
@@ -50,7 +50,7 @@ public class ScheduleCalendarTest extends BaseUiTest {
         ScheduleScreen scheduleScreen = new ScheduleScreen();
         scheduleScreen.waitForLoading();
 
-        test.assertTrue(scheduleScreen.isOpened(), "'Schedule' screen is opened");
+        test.assertTrue(scheduleScreen.isOpened(), scheduleScreen.getScreenName() + " screen is opened");
 
         final int selectedDatePosition = scheduleScreen.getCalendar().getSelectedDatePosition();
         LocalDate selectedDate = scheduleScreen.getCalendar().getSelectedDate();
@@ -62,6 +62,7 @@ public class ScheduleCalendarTest extends BaseUiTest {
         final int newSelectedDatePosition = scheduleScreen.getCalendar().getSelectedDatePosition();
 
         test.assertNotEquals(newSelectedDatePosition, selectedDatePosition, "Active calendar date changes");
+        test.assertEquals(scheduleScreen.getCalendar().getSelectedDatesCount(), 1, "There is only one currently selected date");
     }
 
     @Test(priority = 4, groups = {TestGroup.UI}, dataProvider = "dataProvider_RouteWithNonOperationalDays",

@@ -9,12 +9,13 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
+        <java.source-target.version>1.9</java.source-target.version>
         <rest-assured.version>4.2.0</rest-assured.version>
-        <allure.version>2.13.2</allure.version>
+        <allure.version>2.13.7</allure.version>
         <testng.version>6.14.3</testng.version>
         <appium.version>7.0.0</appium.version>
         <aspectj.version>1.9.4</aspectj.version>
-        <lombok.version>1.18.12</lombok.version>
+        <lombok.version>1.18.16</lombok.version>
         <jackson.version>2.11.0</jackson.version>
     </properties>
 
@@ -121,6 +122,12 @@
             <artifactId>maven-clean-plugin</artifactId>
             <version>3.1.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>RELEASE</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -137,11 +144,10 @@
                 <version>3.8.0</version>
                 <configuration>
                     <encoding>UTF-8</encoding>
-                    <source>1.9</source>
-                    <target>1.9</target>
+                    <source>${java.source-target.version}</source>
+                    <target>${java.source-target.version}</target>
                 </configuration>
             </plugin>
-
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -160,6 +166,7 @@
                         <groupId>org.aspectj</groupId>
                         <artifactId>aspectjweaver</artifactId>
                         <version>${aspectj.version}</version>
+                        <scope>runtime</scope>
                     </dependency>
                 </dependencies>
             </plugin>

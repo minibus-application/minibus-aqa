@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import org.minibus.aqa.main.core.env.Device;
 import org.openqa.selenium.OutputType;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
 import org.testng.asserts.Assertion;
 import org.testng.asserts.IAssert;
 
@@ -21,15 +22,37 @@ import java.util.Base64;
 import java.util.List;
 
 public class TestAssertion extends Assertion {
+    public static final String ASSERTION_PREFIX = "Assert that";
+
+    @Override
+    protected void doAssert(IAssert<?> iAssert) {
+        super.onBeforeAssert(iAssert);
+
+        try {
+            super.executeAssert(iAssert);
+            this.onAssertSuccess(iAssert);
+        } catch (AssertionError assertionError) {
+            this.onAssertFailure(iAssert, assertionError);
+
+            String throwableDetailedMessage = String.format("%s() -> expected was [%s], but found [%s]",
+                    iAssert.getClass().getEnclosingMethod().getName(),
+                    iAssert.getActual(),
+                    iAssert.getExpected());
+
+            throw new AssertionError(throwableDetailedMessage, assertionError.getCause());
+        } finally {
+            super.onAfterAssert(iAssert);
+        }
+    }
 
     @Override
     public void onAssertSuccess(IAssert<?> iAssert) {
         String assertionMessage = iAssert.getMessage();
 
         if (assertionMessage != null) {
-            Allure.step(String.format("Assert that %s (RESULT:%s)", Introspector.decapitalize(assertionMessage), iAssert.getActual()));
+            Allure.step(String.format("%s [ACTUAL:%s]", getFormattedMessage(assertionMessage), iAssert.getActual()), Status.PASSED);
+
             Allure.getLifecycle().updateStep(x -> {
-                x.setStatus(Status.PASSED);
                 x.setStatusDetails(new StatusDetails().setMessage(assertionMessage));
             });
         }
@@ -39,38 +62,27 @@ public class TestAssertion extends Assertion {
 
     @Override
     public void onAssertFailure(IAssert<?> iAssert, AssertionError assertionError) {
-        String assertionMessage = iAssert.getMessage() == null ? assertionError.getMessage() : Introspector.decapitalize(iAssert.getMessage());
+        String assertionMessage = iAssert.getMessage() == null ? assertionError.getMessage() : iAssert.getMessage();
 
-        Allure.step(String.format("Assert that %s (RESULT:%s)", assertionMessage, iAssert.getActual()));
+        Allure.step(getFormattedMessage(assertionMessage), Status.FAILED);
 
         pushAttachment(assertionError.getMessage());
         pushScreenshot(Device.getDriver().getScreenshotAs(OutputType.BASE64));
 
         Allure.getLifecycle().updateStep(x -> {
-            x.setStatus(Status.FAILED);
             x.setStatusDetails(new StatusDetails().setMessage(assertionMessage));
             x.setDescription(assertionError.getMessage());
         });
 
-        super.onAssertFailure(iAssert, assertionError);
+        super.onAssertFailure(iAssert, assertionError); // 2nd arg is actually a stub, see doAssert instead
     }
 
-    private static void failAllureStep(Status status, String statusDetails, String description) {
-        pushAttachment(statusDetails);
-        pushScreenshot(Device.getDriver().getScreenshotAs(OutputType.BASE64));
-        updateAllureStep(status, statusDetails, description);
-    }
-
-    private static void updateAllureStep(Status status, String statusDetails, String description) {
-        Allure.getLifecycle().updateStep(x -> {
-            x.setStatus(status);
-            x.setStatusDetails(new StatusDetails().setMessage(statusDetails));
-            x.setDescription(description);
-        });
+    private String getFormattedMessage(String userErrorMessage) {
+        return String.format("%s %s", ASSERTION_PREFIX, Introspector.decapitalize(userErrorMessage));
     }
 
     @Attachment(value = "Assertion message", type = "text/plain")
-    public static byte[] pushAttachment(String text) {
+    public byte[] pushAttachment(String text) {
         byte[] decodedString;
         try {
             decodedString = text.getBytes(StandardCharsets.UTF_8);
@@ -81,7 +93,7 @@ public class TestAssertion extends Assertion {
     }
 
     @Attachment(value = "Page screenshot", type = "image/png")
-    public static byte[] pushScreenshot(String screenshot) {
+    public byte[] pushScreenshot(String screenshot) {
         byte[] decodedString;
         try {
             decodedString = Base64.getDecoder().decode(screenshot);

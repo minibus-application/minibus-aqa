@@ -1,6 +1,5 @@
 package org.minibus.aqa.main.domain.screens.schedule;
 
-import io.appium.java_client.MobileElement;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.AndroidElement;
 import io.appium.java_client.pagefactory.AndroidFindBy;
@@ -8,6 +7,7 @@ import io.qameta.allure.Step;
 import org.apache.commons.lang3.StringUtils;
 import org.minibus.aqa.main.core.env.Device;
 import org.minibus.aqa.main.core.helpers.VisibilityHelper;
+import org.minibus.aqa.main.domain.data.schedule.DirectionData;
 import org.minibus.aqa.main.domain.screens.BaseLoadableScreen;
 import org.minibus.aqa.main.domain.screens.cities.CitiesScreen;
 
@@ -46,7 +46,7 @@ public class ScheduleScreen extends BaseLoadableScreen {
     private static final String DEFAULT_DEP_FIELD_VALUE = "From";
     private static final String DEFAULT_ARR_FIELD_VALUE = "To";
 
-    public ScheduleScreen(AndroidDriver<MobileElement> driver) {
+    public ScheduleScreen(AndroidDriver<AndroidElement> driver) {
         super(driver, SCREEN_NAME);
     }
 
@@ -80,6 +80,11 @@ public class ScheduleScreen extends BaseLoadableScreen {
         fabRouteDirection.click();
     }
 
+    @Step("Swap route direction")
+    public void swapRouteDirection() {
+        btnSwapDirection.click();
+    }
+
     @Step("Open departure cities screen")
     public CitiesScreen openDepartureCitiesScreen() {
         fieldDepartureCity.click();
@@ -100,33 +105,21 @@ public class ScheduleScreen extends BaseLoadableScreen {
         return calendar;
     }
 
-    public String getDeparture() {
-        return fieldDepartureCity.getText();
-    }
-
-    public String getDepartureCity() {
-        return fieldDepartureCity.getText().split(",")[0].trim();
-    }
-
-    public String getArrival() {
-        return fieldArrivalCity.getText();
-    }
-
-    public String getArrivalCity() {
-        return fieldArrivalCity.getText().split(",")[0].trim();
-    }
-
-    public String getDepartureCityRegion() {
-        return fieldDepartureCity.getText().split(",")[1].trim();
-    }
-
-    public String getArrivalCityRegion() {
-        return fieldArrivalCity.getText().split(",")[1].trim();
+    public DirectionData getDirectionData() {
+        return new DirectionData(fieldDepartureCity.getText(), fieldArrivalCity.getText());
     }
 
     public SortType getSelectedSortType() {
         String type = StringUtils.substringAfterLast(btnSortBy.getText(), "Sort by");
         return SortType.fromString(type);
+    }
+
+    public boolean isDepartureCityFieldEnabled() {
+        return fieldDepartureCity.isEnabled();
+    }
+
+    public boolean isArrivalCityFieldEnabled() {
+        return fieldArrivalCity.isEnabled();
     }
 
     public boolean isDepartureCitySet() {

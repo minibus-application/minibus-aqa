@@ -25,11 +25,6 @@ public class CityWidget extends BaseWidget {
         super(element);
     }
 
-    public ScheduleScreen select() {
-        super.click();
-        return new ScheduleScreen();
-    }
-
     @Step("Open Google Directions app")
     public void openGoogleDirections() {
         iconCityLocation.click();

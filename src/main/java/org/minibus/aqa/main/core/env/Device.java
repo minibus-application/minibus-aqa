@@ -1,8 +1,8 @@
 package org.minibus.aqa.main.core.env;
 
-import io.appium.java_client.MobileElement;
 import io.appium.java_client.Setting;
 import io.appium.java_client.android.AndroidDriver;
+import io.appium.java_client.android.AndroidElement;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -31,7 +31,7 @@ import static io.appium.java_client.remote.MobileCapabilityType.*;
 
 public class Device {
     private static final Logger LOGGER = LogManager.getLogger(Device.class);
-    private static ThreadLocal<AndroidDriver<MobileElement>> driver = new ThreadLocal<>();
+    private static ThreadLocal<AndroidDriver<AndroidElement>> driver = new ThreadLocal<>();
     private static List<Device> devices = new ArrayList<>();
 
     private static DesiredCapabilities resolveCapabilities(DeviceConfig deviceConfig, DeviceGeneralConfig config) {
@@ -79,7 +79,7 @@ public class Device {
         return path;
     }
 
-    public synchronized AndroidDriver<MobileElement> create(String serverUrl, DeviceConfig deviceConfig, DeviceGeneralConfig config) {
+    public synchronized AndroidDriver<AndroidElement> create(String serverUrl, DeviceConfig deviceConfig, DeviceGeneralConfig config) {
         try {
             return create(new URL(serverUrl), deviceConfig, config);
         } catch (MalformedURLException e) {
@@ -87,10 +87,10 @@ public class Device {
         }
     }
 
-    public synchronized AndroidDriver<MobileElement> create(URL serverUrl, DeviceConfig deviceConfig, DeviceGeneralConfig config) {
+    public synchronized AndroidDriver<AndroidElement> create(URL serverUrl, DeviceConfig deviceConfig, DeviceGeneralConfig config) {
         LOGGER.info("Starting driver session: {}", serverUrl);
 
-        AndroidDriver<MobileElement> initializedDriver = new AndroidDriver<>(serverUrl, resolveCapabilities(deviceConfig, config));
+        AndroidDriver<AndroidElement> initializedDriver = new AndroidDriver<>(serverUrl, resolveCapabilities(deviceConfig, config));
         initializedDriver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
         initializedDriver.setSetting(Setting.WAIT_FOR_IDLE_TIMEOUT, 50);
         initializedDriver.setSetting(Setting.WAIT_FOR_SELECTOR_TIMEOUT, 50);
@@ -103,7 +103,7 @@ public class Device {
         return getDriver();
     }
 
-    public static AndroidDriver<MobileElement> getDriver() {
+    public static AndroidDriver<AndroidElement> getDriver() {
         return driver.get();
     }
 

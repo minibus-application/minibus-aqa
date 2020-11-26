@@ -1,59 +1,57 @@
 package org.minibus.aqa.main.core.helpers;
 
-import io.appium.java_client.MobileElement;
+import io.appium.java_client.AppiumFluentWait;
 import io.appium.java_client.android.AndroidDriver;
+import io.appium.java_client.android.AndroidElement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.minibus.aqa.main.core.env.config.ConfigManager;
 import org.minibus.aqa.main.core.env.Device;
-import org.minibus.aqa.main.core.handlers.TestStepLogger;
 import org.openqa.selenium.*;
-import org.openqa.selenium.support.ui.ExpectedCondition;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.FluentWait;
-import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class VisibilityHelper {
     private static final Logger LOGGER = LogManager.getLogger(VisibilityHelper.class);
     private static final int DEFAULT_ELEMENT_TIMEOUT = ConfigManager.getGeneralConfig().elementTimeout();
 
-    public static boolean isVisible(MobileElement el, int timeoutSec) {
-        return fluentWaitUntil(MobileElementExpectedConditions.presenceOfElement(el), timeoutSec);
+    public static boolean isVisible(AndroidElement el, int timeoutSec) {
+        return fluentWaitUntil(AndroidElementExpectedConditions.presenceOfElement(el), timeoutSec);
     }
 
-    public static boolean isVisible(MobileElement el) {
+    public static boolean isVisible(AndroidElement el) {
         return isVisible(el, DEFAULT_ELEMENT_TIMEOUT);
     }
 
-    public static boolean isInvisible(MobileElement el, int timeoutSec) {
-        return fluentWaitUntil(MobileElementExpectedConditions.absenceOfElement(el), timeoutSec);
+    public static boolean isInvisible(AndroidElement el, int timeoutSec) {
+        return fluentWaitUntil(AndroidElementExpectedConditions.absenceOfElement(el), timeoutSec);
     }
 
-    public static boolean isInvisible(MobileElement el) {
+    public static boolean isInvisible(AndroidElement el) {
         return isInvisible(el, DEFAULT_ELEMENT_TIMEOUT);
     }
 
-    public static boolean areVisible(List<MobileElement> els, int timeoutSec) {
-        return fluentWaitUntil(MobileElementExpectedConditions.presenceOfAllElements(els), timeoutSec);
+    public static boolean areVisible(List<AndroidElement> els, int timeoutSec) {
+        return fluentWaitUntil(AndroidElementExpectedConditions.presenceOfAllElements(els), timeoutSec);
     }
 
-    public static boolean areVisible(List<MobileElement> els) {
+    public static boolean areVisible(List<AndroidElement> els) {
         return areVisible(els, DEFAULT_ELEMENT_TIMEOUT);
     }
 
-    public static boolean areInvisible(List<MobileElement> els, int timeoutSec) {
-        return fluentWaitUntil(MobileElementExpectedConditions.absenceOfAllElements(els), timeoutSec);
+    public static boolean areInvisible(List<AndroidElement> els, int timeoutSec) {
+        return fluentWaitUntil(AndroidElementExpectedConditions.absenceOfAllElements(els), timeoutSec);
     }
 
-    public static boolean areInvisible(List<MobileElement> els) {
+    public static boolean areInvisible(List<AndroidElement> els) {
         return areInvisible(els, DEFAULT_ELEMENT_TIMEOUT);
     }
 
-    private static boolean fluentWaitUntil(ExpectedCondition<?> expectedCondition, int timeoutSec) {
+    private static boolean fluentWaitUntil(AndroidElementExpectedCondition<?> expectedCondition, int timeoutSec) {
         try {
             getFluentWait(timeoutSec).until(expectedCondition);
             return true;
@@ -63,8 +61,8 @@ public class VisibilityHelper {
         }
     }
 
-    private static FluentWait<AndroidDriver<MobileElement>> getFluentWait(int timeoutSec) {
-        return new FluentWait<>(Device.getDriver())
+    private static FluentWait<AndroidDriver<AndroidElement>> getFluentWait(int timeoutSec) {
+        return new AppiumFluentWait<>(Device.getDriver())
                 .withTimeout(Duration.ofSeconds(timeoutSec))
                 .pollingEvery(Duration.ofMillis(1))
                 .ignoring(NoSuchElementException.class)
@@ -72,14 +70,17 @@ public class VisibilityHelper {
                 .ignoring(TimeoutException.class);
     }
 
-    static class MobileElementExpectedConditions {
+    private interface AndroidElementExpectedCondition<T> extends Function<AndroidDriver<AndroidElement>, T> {
+    }
 
-        public static ExpectedCondition<List<MobileElement>> presenceOfAllElements(List<MobileElement> els) {
-            return new ExpectedCondition<>() {
+    static class AndroidElementExpectedConditions {
+
+        public static AndroidElementExpectedCondition<List<AndroidElement>> presenceOfAllElements(List<AndroidElement> els) {
+            return new AndroidElementExpectedCondition<List<AndroidElement>>() {
                 @Override
-                public List<MobileElement> apply(WebDriver webDriver) {
+                public List<AndroidElement> apply(AndroidDriver driver) {
                     return !els.stream()
-                            .map(el -> MobileElementExpectedConditions.presenceOfElement(el).apply(webDriver))
+                            .map(el -> AndroidElementExpectedConditions.presenceOfElement(el).apply(driver))
                             .collect(Collectors.toList()).contains(null) ? els : null;
                 }
 
@@ -89,12 +90,12 @@ public class VisibilityHelper {
             };
         }
 
-        public static ExpectedCondition<Boolean> absenceOfAllElements(List<MobileElement> els) {
-            return new ExpectedCondition<>() {
+        public static AndroidElementExpectedCondition<Boolean> absenceOfAllElements(List<AndroidElement> els) {
+            return new AndroidElementExpectedCondition<Boolean>() {
                 @Override
-                public Boolean apply(WebDriver webDriver) {
+                public Boolean apply(AndroidDriver driver) {
                     return els.stream().allMatch(el -> {
-                        return MobileElementExpectedConditions.absenceOfElement(el).apply(webDriver);
+                        return AndroidElementExpectedConditions.absenceOfElement(el).apply(driver);
                     });
                 }
 
@@ -104,11 +105,11 @@ public class VisibilityHelper {
             };
         }
 
-        public static ExpectedCondition<Boolean> absenceOfElement(MobileElement el) {
-            return new ExpectedCondition<>() {
+        public static AndroidElementExpectedCondition<Boolean> absenceOfElement(AndroidElement el) {
+            return new AndroidElementExpectedCondition<Boolean>() {
 
                 @Override
-                public Boolean apply(WebDriver webDriver) {
+                public Boolean apply(AndroidDriver driver) {
                     try {
                         return !el.isDisplayed();
                     } catch (NoSuchElementException | StaleElementReferenceException e) {
@@ -122,12 +123,12 @@ public class VisibilityHelper {
             };
         }
 
-        public static ExpectedCondition<WebElement> presenceOfElement(MobileElement el) {
-            return new ExpectedCondition<>() {
+        public static AndroidElementExpectedCondition<AndroidElement> presenceOfElement(AndroidElement el) {
+            return new AndroidElementExpectedCondition<AndroidElement>() {
 
                 @Override
-                public WebElement apply(WebDriver webDriver) {
-                    return ExpectedConditions.visibilityOf(el).apply(webDriver);
+                public AndroidElement apply(AndroidDriver driver) {
+                    return AndroidElementExpectedConditions.elementIfVisible(el);
                 }
 
                 public String toString() {
@@ -135,6 +136,9 @@ public class VisibilityHelper {
                 }
             };
         }
-    }
 
+        private static AndroidElement elementIfVisible(AndroidElement element) {
+            return element.isDisplayed() ? element : null;
+        }
+    }
 }

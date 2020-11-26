@@ -5,8 +5,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bson.types.ObjectId;
 import org.minibus.aqa.main.Constants;
-import org.minibus.aqa.main.core.handlers.TestListener;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -32,13 +32,17 @@ public class RandomHelper {
         return res;
     }
 
-    public static <T> T getAny(List<T> list, T except) {
+    public static <T> T getAny(List<T> list, T... except) {
+        return getAny(list, Arrays.asList(except));
+    }
+
+    public static <T> T getAny(List<T> list, List<T> except) {
         LOGGER.debug("Get any from list: {}, except: {}", list, except);
 
         T res = list.stream()
-                .filter(x -> !x.equals(except))
+                .filter(x -> except == null || !except.contains(x))
                 .collect(Collectors.toList())
-                .get(new Random().nextInt(list.size() - 1));
+                .get(new Random().nextInt(list.size() - (except == null ? 0 : except.size())));
 
         LOGGER.debug("Result is: {}", res);
         return res;

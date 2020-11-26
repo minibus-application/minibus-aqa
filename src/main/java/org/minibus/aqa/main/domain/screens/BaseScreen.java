@@ -1,6 +1,5 @@
 package org.minibus.aqa.main.domain.screens;
 
-import io.appium.java_client.MobileElement;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.AndroidElement;
 import io.appium.java_client.pagefactory.AndroidFindBy;
@@ -20,18 +19,18 @@ public abstract class BaseScreen implements Screen {
     private AndroidElement textTitle;
 
     protected static final Logger LOGGER = LogManager.getLogger(BaseScreen.class);
-    private AndroidDriver<MobileElement> driver;
+    private AndroidDriver<AndroidElement> driver;
     private final String screenName;
     private final int screenTimeout;
 
-    protected BaseScreen(AndroidDriver<MobileElement> driver, String screenName) {
+    protected BaseScreen(AndroidDriver<AndroidElement> driver, String screenName) {
         this.driver = driver;
         this.screenName = screenName;
         this.screenTimeout = ConfigManager.getGeneralConfig().screenTimeout();
         PageFactory.initElements(new AppiumFieldDecorator(driver, Duration.ofSeconds(0)), this);
     }
 
-    protected MobileElement getTitleElement() {
+    protected AndroidElement getTitleElement() {
         return textTitle;
     }
 
@@ -58,7 +57,7 @@ public abstract class BaseScreen implements Screen {
     }
 
     @Override
-    public AndroidDriver<MobileElement> getDriver() {
+    public AndroidDriver<AndroidElement> getDriver() {
         return driver;
     }
 }

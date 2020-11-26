@@ -2,15 +2,17 @@
 <Configuration debug="true">
 
     <Appenders>
-        <Console name="console" target="SYSTEM_OUT">
-            <PatternLayout disableAnsi="false" pattern="%d{ISO8601} %highlight{${LOG_LEVEL_PATTERN:-%5p}}{DEBUG=black} %style{%thread}{magenta} %style{%-15.18c{1}}{cyan} : %msg%n"/>
+        <Console name="STDOUT" target="SYSTEM_OUT">
+            <PatternLayout disableAnsi="false" pattern="%d{ISO8601} %highlight{${LOG_LEVEL_PATTERN:-%5p}}{DEBUG=normal} %style{%thread}{magenta} %style{%-15.18c{1}}{cyan} : %msg%n"/>
         </Console>
     </Appenders>
 
     <Loggers>
+        <Logger name="org.apache" level="ERROR"/>
+        <Logger name="httpclient" level="ERROR"/>
+
         <Root level="ALL">
-            <AppenderRef ref="console"/>
+            <AppenderRef ref="STDOUT"/>
         </Root>
     </Loggers>
-
 </Configuration >
