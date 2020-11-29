@@ -2,10 +2,7 @@ package org.minibus.aqa.main.domain.screens.schedule;
 
 import io.appium.java_client.android.AndroidElement;
 import io.appium.java_client.pagefactory.AndroidFindBy;
-import io.appium.java_client.pagefactory.Widget;
-import io.qameta.allure.Step;
 import org.minibus.aqa.main.Constants;
-import org.minibus.aqa.main.core.helpers.ImageProcessor;
 import org.minibus.aqa.main.domain.screens.BaseWidget;
 import org.openqa.selenium.WebElement;
 
@@ -38,12 +35,12 @@ public class CalendarDayWidget extends BaseWidget {
         return btnDayOfMonth.getText();
     }
 
-    public String getDisplayDate() {
+    public String getDisplayedDate() {
         return String.format("%s %s", getDayOfWeek(), getDayOfMonth()).trim();
     }
 
     public LocalDate getDate(final int positionInCalendar) {
-        String displayCalendarDate = getDisplayDate();
+        String displayCalendarDate = getDisplayedDate();
 
         LocalDate currentDate = LocalDate.now();
         int calendarDayOfMonth = Integer.parseInt(getDayOfMonth());

@@ -1,6 +1,5 @@
 package org.minibus.aqa.test.ui;
 
-import com.google.common.collect.ImmutableMap;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.AndroidElement;
 import io.appium.java_client.appmanagement.ApplicationState;
@@ -8,6 +7,7 @@ import io.appium.java_client.service.local.AppiumServiceBuilder;
 import org.minibus.aqa.main.core.env.AppiumLocalManager;
 import org.minibus.aqa.main.core.env.Device;
 import org.minibus.aqa.main.core.env.config.ConfigManager;
+import org.minibus.aqa.main.core.helpers.AppInteractionsHelper;
 import org.minibus.aqa.main.core.helpers.MobileCommandHelper;
 import org.minibus.aqa.test.BaseTest;
 import org.minibus.aqa.test.TestGroup;
@@ -20,7 +20,7 @@ import org.testng.annotations.BeforeSuite;
 import java.time.LocalDateTime;
 
 public abstract class BaseUiTest extends BaseTest {
-    protected AndroidDriver<AndroidElement> driver;
+    private AndroidDriver<AndroidElement> driver;
 
     @BeforeSuite(groups = {TestGroup.UI})
     public void beforeSuite(ITestContext context) {
@@ -44,26 +44,21 @@ public abstract class BaseUiTest extends BaseTest {
 
     @BeforeMethod(groups = {TestGroup.UI})
     public void beforeMethod() {
-        String appPackage = ConfigManager.getDeviceGeneralConfig().appPackage();
-
         boolean isAppOpened = ConfigManager.getDeviceGeneralConfig().autoLaunch()
-                && isAppOpened(appPackage, ConfigManager.getGeneralConfig().elementTimeout());
+                && waitUntilAppOpened(ConfigManager.getGeneralConfig().elementTimeout());
 
         if (!isAppOpened) {
             if (ConfigManager.getDeviceGeneralConfig().fullReset()) {
-                LOGGER.debug(String.format("%s is not installed", appPackage));
-                LOGGER.debug(String.format("Launching %s", appPackage));
-                getDriver().launchApp();
+                AppInteractionsHelper.installAndOpenAppUnderTest(driver);
             } else {
-                LOGGER.debug(String.format("Opening %s", appPackage));
-                getDriver().activateApp(appPackage);
+                AppInteractionsHelper.openAppUnderTest(driver);
             }
         }
     }
 
     @AfterMethod(groups = {TestGroup.UI})
     public void afterMethod() {
-        getDriver().closeApp();
+        AppInteractionsHelper.closeAppUnderTest(driver);
     }
 
     @AfterSuite(groups = {TestGroup.UI})
@@ -72,30 +67,28 @@ public abstract class BaseUiTest extends BaseTest {
         MobileCommandHelper.shell("settings", "put", "global", "transition_animation_scale", "1");
         MobileCommandHelper.shell("settings", "put", "global", "animator_duration_scale", "1");
 
-        Device.getDriver().quit();
+        Device.quit();
 
-        if (AppiumLocalManager.isRunning()) {
-            AppiumLocalManager.stop();
-        }
+        if (AppiumLocalManager.isRunning()) AppiumLocalManager.stop();
     }
 
     protected AndroidDriver<AndroidElement> getDriver() {
         return driver;
     }
 
-    private boolean isAppOpened(String appPackage, int timeoutSec) {
+    private boolean waitUntilAppOpened(int timeoutSec) {
         LocalDateTime endTime = LocalDateTime.now().plusSeconds(timeoutSec);
-        LOGGER.debug(String.format("Waiting for %s to open (%s sec)", appPackage, timeoutSec));
+        LOGGER.debug("Waiting for the app to open ({} sec)", timeoutSec);
 
         do {
-            if (getDriver().queryAppState(appPackage).equals(ApplicationState.RUNNING_IN_FOREGROUND)) {
-                LOGGER.debug(String.format("%s is opened", appPackage));
+            if (AppInteractionsHelper.isAppUnderTestOpened(driver)) {
+                LOGGER.debug("The app is opened");
                 return true;
             }
         }
         while (LocalDateTime.now().isBefore(endTime));
 
-        LOGGER.debug(String.format("%s is not opened", appPackage));
+        LOGGER.debug("The app is not opened");
         return false;
     }
 }

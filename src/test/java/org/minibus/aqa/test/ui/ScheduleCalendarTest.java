@@ -57,7 +57,7 @@ public class ScheduleCalendarTest extends BaseUiTest {
         List<LocalDate> operationalDates = scheduleScreen.getCalendar().getOperationalDates();
 
         scheduleScreen.getCalendar().selectDay(RandomHelper.getAny(operationalDates, selectedDate));
-        scheduleScreen.waitForContentUpdating();
+        scheduleScreen.waitForContentLoading();
 
         final int newSelectedDatePosition = scheduleScreen.getCalendar().getSelectedDatePosition();
 
@@ -76,7 +76,7 @@ public class ScheduleCalendarTest extends BaseUiTest {
 
         CitiesScreen arrivalCitiesScreen = scheduleScreen.openArrivalCitiesScreen();
         arrivalCitiesScreen.selectCity(route.getTo().getName());
-        scheduleScreen.waitForContentUpdating();
+        scheduleScreen.waitForContentLoading();
 
         List<LocalDate> actualOperationalDates = scheduleScreen.getCalendar().getOperationalDates();
         List<LocalDate> expectedOperationalDates = DatesHelper.fromDayOfWeekValuesToDates(route.getOpDays());
@@ -95,7 +95,7 @@ public class ScheduleCalendarTest extends BaseUiTest {
         initiallySelectedDate = RandomHelper.getAny(operationalDates, initiallySelectedDate);
 
         scheduleScreen.getCalendar().selectDay(initiallySelectedDate);
-        scheduleScreen.waitForContentUpdating();
+        scheduleScreen.waitForContentLoading();
 
         final int selectedDatePosition = scheduleScreen.getCalendar().getSelectedDatePosition();
 
@@ -118,7 +118,7 @@ public class ScheduleCalendarTest extends BaseUiTest {
 
         CitiesScreen arrivalCitiesScreen = scheduleScreen.openArrivalCitiesScreen();
         arrivalCitiesScreen.selectCity(route.getTo().getName());
-        scheduleScreen.waitForContentUpdating();
+        scheduleScreen.waitForContentLoading();
 
         LocalDate selectedDate = scheduleScreen.getCalendar().getSelectedDate();
         final DayOfWeek nonOperationalDayOfWeek = RandomHelper.getAny(DatesHelper.extractMissingDaysOfWeek(route.getOpDays()), selectedDate.getDayOfWeek());

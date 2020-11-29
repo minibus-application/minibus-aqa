@@ -1,8 +1,10 @@
 package org.minibus.aqa.test.ui;
 
+import org.minibus.aqa.main.core.helpers.AppInteractionsHelper;
 import org.minibus.aqa.main.core.helpers.RandomHelper;
 import org.minibus.aqa.main.domain.api.helpers.RoutesHelper;
 import org.minibus.aqa.main.domain.api.models.RouteDTO;
+import org.minibus.aqa.main.domain.data.schedule.DirectionData;
 import org.minibus.aqa.main.domain.screens.cities.CitiesScreen;
 import org.minibus.aqa.main.domain.screens.schedule.ScheduleScreen;
 import org.minibus.aqa.test.TestGroup;
@@ -45,17 +47,14 @@ public class ScheduleRouteDirectionTest extends BaseUiTest {
 
         test.assertTrue(scheduleScreen.isOpened(), scheduleScreen.getScreenName() + " screen is opened");
 
-        String oldDeparture = scheduleScreen.getDirectionData().getDepartureFieldValue();
-        String oldArrival = scheduleScreen.getDirectionData().getArrivalFieldValue();
+        DirectionData oldDirectionData = scheduleScreen.getDirectionData();
 
         scheduleScreen.swapRouteDirection();
-        scheduleScreen.waitForContentUpdating();
+        scheduleScreen.waitForContentLoading();
 
-        String newDeparture = scheduleScreen.getDirectionData().getDepartureFieldValue();
-        String newArrival = scheduleScreen.getDirectionData().getArrivalFieldValue();
+        DirectionData newDirectionData = scheduleScreen.getDirectionData();
 
-        test.assertEquals(newDeparture, oldArrival, "Departure city field value is changed");
-        test.assertEquals(newArrival, oldDeparture, "Arrival city field value is changed");
+        test.assertNotEquals(newDirectionData, oldDirectionData, "Direction data is changed");
     }
 
     @Test(priority = 4, groups = {TestGroup.UI},
@@ -66,18 +65,86 @@ public class ScheduleRouteDirectionTest extends BaseUiTest {
 
         test.assertTrue(scheduleScreen.isOpened(), scheduleScreen.getScreenName() + " screen is opened");
 
-        RouteDTO foundRoute = RandomHelper.getAny(RoutesHelper.getAllRoutesExceptDirection(scheduleScreen.getDirectionData()));
+        RouteDTO route = RandomHelper.getAny(RoutesHelper.getAllRoutesExceptDepCity(scheduleScreen.getDirectionData().getDepCity()));
+
+        DirectionData oldDirectionData = scheduleScreen.getDirectionData();
 
         CitiesScreen departureCitiesScreen = scheduleScreen.openDepartureCitiesScreen();
-        departureCitiesScreen.selectCity(foundRoute.getFrom().getName());
-        scheduleScreen.waitForContentUpdating();
+        departureCitiesScreen.selectCity(route.getFrom().getName());
+        scheduleScreen.waitForContentLoading();
 
-        test.assertEquals(scheduleScreen.getDirectionData().getDepartureCity(), foundRoute.getFrom().getName(), "Departure city is changed");
+        test.assertEquals(scheduleScreen.getDirectionData().getDepCity(), route.getFrom().getName(), "Departure city is changed");
+        test.assertEquals(scheduleScreen.getDirectionData().getArrCity(), oldDirectionData.getArrCity(), "Arrival city stays with the old value");
 
         CitiesScreen arrivalCitiesScreen = scheduleScreen.openArrivalCitiesScreen();
-        arrivalCitiesScreen.selectCity(foundRoute.getTo().getName());
-        scheduleScreen.waitForContentUpdating();
+        arrivalCitiesScreen.selectCity(route.getTo().getName());
+        scheduleScreen.waitForContentLoading();
 
-        test.assertEquals(scheduleScreen.getDirectionData().getArrivalCity(), foundRoute.getTo().getName(), "Arrival city is changed");
+        test.assertEquals(scheduleScreen.getDirectionData().getArrCity(), route.getTo().getName(), "Arrival city is changed");
+        test.assertEquals(scheduleScreen.getDirectionData().getDepCity(), route.getFrom().getName(), "Departure city stays with the old value");
+    }
+
+    @Test(priority = 5, groups = {TestGroup.UI},
+            description = "When user changes route direction then toolbar subtitle displays the same direction value")
+    public void testWhenRouteDirectionChangesThenToolbarSubtitleDisplaysActualDirection() {
+        ScheduleScreen scheduleScreen = new ScheduleScreen();
+        scheduleScreen.waitForLoading();
+
+        test.assertTrue(scheduleScreen.isOpened(), scheduleScreen.getScreenName() + " screen is opened");
+
+        DirectionData actualDirectionData = scheduleScreen.getDirectionData();
+
+        scheduleScreen.toggleRouteDirection();
+
+        String oldSubtitle = scheduleScreen.getSubtitle();
+
+        test.assertEquals(scheduleScreen.getSubtitle(), actualDirectionData.getDirectionDescription(), "Toolbar subtitle shows an actual direction");
+
+        scheduleScreen.toggleRouteDirection();
+        scheduleScreen.swapRouteDirection();
+        scheduleScreen.waitForContentLoading();
+
+        actualDirectionData = scheduleScreen.getDirectionData();
+
+        scheduleScreen.toggleRouteDirection();
+
+        test.assertNotEquals(scheduleScreen.getSubtitle(), oldSubtitle, "Toolbar subtitle changes");
+        test.assertEquals(scheduleScreen.getSubtitle(), actualDirectionData.getDirectionDescription(), "Toolbar subtitle shows an actual direction");
+    }
+
+    @Test(priority = 6, groups = {TestGroup.UI},
+            description = "When user changes route direction then the choice restores after reopening the app")
+    public void testWhenRouteDirectionChangesAndAppReopensThenChosenDirectionRestores() {
+        ScheduleScreen scheduleScreen = new ScheduleScreen();
+        scheduleScreen.waitForLoading();
+
+        test.assertTrue(scheduleScreen.isOpened(), scheduleScreen.getScreenName() + " screen is opened");
+
+        RouteDTO route = RandomHelper.getAny(RoutesHelper.getAllRoutesExceptDepCity(scheduleScreen.getDirectionData().getDepCity()));
+
+        CitiesScreen departureCitiesScreen = scheduleScreen.openDepartureCitiesScreen();
+        departureCitiesScreen.selectCity(route.getFrom().getName());
+        scheduleScreen.waitForContentLoading();
+
+        CitiesScreen arrivalCitiesScreen = scheduleScreen.openArrivalCitiesScreen();
+        arrivalCitiesScreen.selectCity(route.getTo().getName());
+        scheduleScreen.waitForContentLoading();
+
+        DirectionData chosenDirectionData = scheduleScreen.getDirectionData();
+
+        test.assertEquals(chosenDirectionData.getDepCity(), route.getFrom().getName(), "Departure city is changed");
+        test.assertEquals(chosenDirectionData.getArrCity(), route.getTo().getName(), "Arrival city is changed");
+
+        AppInteractionsHelper.closeAppUnderTest(getDriver());
+
+        test.assertTrue(!AppInteractionsHelper.isAppUnderTestOpened(getDriver()), "The app is closed");
+
+        AppInteractionsHelper.openAppUnderTest(getDriver());
+
+        scheduleScreen.waitForContentLoading();
+
+        DirectionData restoredDirectionData = scheduleScreen.getDirectionData();
+
+        test.assertEquals(restoredDirectionData, chosenDirectionData, "Previously chosen direction data restores");
     }
 }

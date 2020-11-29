@@ -107,7 +107,7 @@ public class Device {
         return driver.get();
     }
 
-    public boolean quit() {
+    public static boolean quit() {
         if (driver.get() != null) {
             if (driver.get().getSessionId() != null) {
                 LOGGER.info("Closing driver session: {}", driver.get().getSessionId().toString());
@@ -158,7 +158,7 @@ public class Device {
             if (getDriver() != null) {
                 try {
                     LOGGER.info("Shutdown driver session: {}", getDriver().getSessionId().toString());
-                    devices.forEach(Device::quit);
+                    devices.forEach(d -> quit());
                 } catch (Exception e) {
                     LOGGER.warn("Can not shutdown driver session:\n{}", e.getMessage());
                 }

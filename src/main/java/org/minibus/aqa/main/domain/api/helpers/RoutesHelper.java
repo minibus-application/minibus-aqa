@@ -17,13 +17,13 @@ public class RoutesHelper {
         return when().get(ROUTES).then().extract().jsonPath().getList("$", RouteDTO.class);
     }
 
-    public static List<RouteDTO> getAllRoutesByDepartureCity(String depCity) {
+    public static List<RouteDTO> getAllRoutesByDepCity(String depCity) {
         return getAllRoutes().stream()
                 .filter(r -> depCity.equals(r.getFrom().getName()))
                 .collect(Collectors.toList());
     }
 
-    public static List<RouteDTO> getAllRoutesByArrivalCity(String arrCity) {
+    public static List<RouteDTO> getAllRoutesByArrCity(String arrCity) {
         return getAllRoutes().stream()
                 .filter(r -> arrCity.equals(r.getTo().getName()))
                 .collect(Collectors.toList());
@@ -32,17 +32,29 @@ public class RoutesHelper {
     public static List<RouteDTO> getAllRoutesExceptDirection(DirectionData direction) {
         return getAllRoutes().stream()
                 .filter(r -> {
-                    return !direction.getDepartureCity().equals(r.getFrom().getName())
-                            && !direction.getArrivalCity().equals(r.getTo().getName());
+                    return !direction.getDepCity().equals(r.getFrom().getName())
+                            && !direction.getArrCity().equals(r.getTo().getName());
                 })
+                .collect(Collectors.toList());
+    }
+
+    public static List<RouteDTO> getAllRoutesExceptDepCity(String depCity) {
+        return getAllRoutes().stream()
+                .filter(r -> !depCity.equals(r.getFrom().getName()))
+                .collect(Collectors.toList());
+    }
+
+    public static List<RouteDTO> getAllRoutesExceptArrCity(String arrCity) {
+        return getAllRoutes().stream()
+                .filter(r -> !arrCity.equals(r.getTo().getName()))
                 .collect(Collectors.toList());
     }
 
     public static RouteDTO getRouteByDirection(DirectionData direction) {
         return getAllRoutes().stream()
                 .filter(r -> {
-                    return direction.getDepartureCity().equals(r.getFrom().getName())
-                            && direction.getArrivalCity().equals(r.getTo().getName());
+                    return direction.getDepCity().equals(r.getFrom().getName())
+                            && direction.getArrCity().equals(r.getTo().getName());
                 })
                 .findFirst()
                 .orElse(null);

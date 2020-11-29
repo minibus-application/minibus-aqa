@@ -1,33 +1,33 @@
 package org.minibus.aqa.main.domain.data.schedule;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 
-@Getter
+@Data
 @AllArgsConstructor
 public class DirectionData {
 
-    private String departureFieldValue;
-    private String arrivalFieldValue;
+    private String depFieldValue;
+    private String arrFieldValue;
 
-    public String getDepartureCity() {
-        return getFieldParts(departureFieldValue)[0];
+    public String getDepCity() {
+        return getFieldParts(depFieldValue)[0];
     }
 
-    public String getDepartureCityRegion() {
-        return getFieldParts(departureFieldValue)[1];
+    public String getDepCityRegion() {
+        return getFieldParts(depFieldValue)[1];
     }
 
-    public String getArrivalCity() {
-        return getFieldParts(arrivalFieldValue)[0];
+    public String getArrCity() {
+        return getFieldParts(arrFieldValue)[0];
     }
 
-    public String getArrivalCityRegion() {
-        return getFieldParts(arrivalFieldValue)[1];
+    public String getArrCityRegion() {
+        return getFieldParts(arrFieldValue)[1];
     }
 
     public String getDirectionDescription() {
-        return getDepartureCity() + " — " + getArrivalCity();
+        return getDepCity() + " — " + getArrCity();
     }
 
     private String[] getFieldParts(String fieldValue) {

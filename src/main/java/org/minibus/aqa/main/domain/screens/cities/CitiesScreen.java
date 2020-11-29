@@ -9,6 +9,7 @@ import org.minibus.aqa.main.domain.screens.BaseLoadableScreen;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 public class CitiesScreen extends BaseLoadableScreen {
@@ -40,6 +41,14 @@ public class CitiesScreen extends BaseLoadableScreen {
         ScheduleScreen scheduleScreen = new ScheduleScreen();
         scheduleScreen.isOpened();
         return scheduleScreen;
+    }
+
+    public List<String> getCities() {
+        return cities.stream().map(CityWidget::getCityName).collect(Collectors.toList());
+    }
+
+    public List<String> getRegions() {
+        return cities.stream().map(CityWidget::getRegionName).collect(Collectors.toList());
     }
 
     private CityWidget getCityByName(final String cityName) {

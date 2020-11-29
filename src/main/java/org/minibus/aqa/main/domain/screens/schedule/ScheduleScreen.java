@@ -6,6 +6,7 @@ import io.appium.java_client.pagefactory.AndroidFindBy;
 import io.qameta.allure.Step;
 import org.apache.commons.lang3.StringUtils;
 import org.minibus.aqa.main.core.env.Device;
+import org.minibus.aqa.main.core.helpers.ScrollHelper;
 import org.minibus.aqa.main.core.helpers.VisibilityHelper;
 import org.minibus.aqa.main.domain.data.schedule.DirectionData;
 import org.minibus.aqa.main.domain.screens.BaseLoadableScreen;
@@ -70,8 +71,8 @@ public class ScheduleScreen extends BaseLoadableScreen {
         return VisibilityHelper.areInvisible(List.of(progressHud, getProgressBar()), timeoutSec);
     }
 
-    @Step("Wait for content to update")
-    public boolean waitForContentUpdating() {
+    @Step("Wait for content to load")
+    public boolean waitForContentLoading() {
         return VisibilityHelper.isInvisible(getProgressBar(), getScreenTimeout());
     }
 
@@ -107,6 +108,10 @@ public class ScheduleScreen extends BaseLoadableScreen {
 
     public DirectionData getDirectionData() {
         return new DirectionData(fieldDepartureCity.getText(), fieldArrivalCity.getText());
+    }
+
+    public String getSubtitle() {
+        return textSubtitle.getText();
     }
 
     public SortType getSelectedSortType() {
