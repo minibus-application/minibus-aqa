@@ -12,6 +12,7 @@ import org.testng.IMethodInterceptor;
 import org.testng.ITestContext;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,7 +23,7 @@ public class TestInterceptor implements IMethodInterceptor {
 
     @Override
     public List<IMethodInstance> intercept(List<IMethodInstance> methods, ITestContext iTestContext) {
-        List<IMethodInstance> methodInstances = new LinkedList<>(methods);
+        ArrayList<IMethodInstance> methodInstances = new ArrayList<>(methods);
         DeviceGeneralConfig config = ConfigManager.getDeviceGeneralConfig();
 
         methodInstances = methodInstances.stream()
@@ -43,7 +44,7 @@ public class TestInterceptor implements IMethodInterceptor {
                         return true;
                     }
                 })
-                .collect(Collectors.toList());
+                .collect(Collectors.toCollection(ArrayList::new));
 
         LOGGER.debug("Tests after filtering: {}", methodInstances.size());
 

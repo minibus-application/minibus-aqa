@@ -23,6 +23,10 @@ public interface DeviceGeneralConfig extends Config {
     @Key("emulated")
     boolean emulated();
 
+    @DefaultValue("true")
+    @Key("disableAnimation")
+    boolean disableAnimation();
+
     /**
      * App related
      */

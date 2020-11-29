@@ -3,8 +3,10 @@ package org.minibus.aqa.main.domain.screens.schedule;
 import io.appium.java_client.android.AndroidElement;
 import io.appium.java_client.pagefactory.AndroidFindBy;
 import org.minibus.aqa.main.Constants;
+import org.minibus.aqa.main.core.env.Device;
 import org.minibus.aqa.main.domain.screens.BaseWidget;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.CacheLookup;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -13,6 +15,7 @@ import java.time.format.TextStyle;
 @AndroidFindBy(id = "ll_date_container")
 public class CalendarDayWidget extends BaseWidget {
 
+    @CacheLookup
     @AndroidFindBy(id = "tv_day_of_week")
     private AndroidElement textDayOfWeek;
 

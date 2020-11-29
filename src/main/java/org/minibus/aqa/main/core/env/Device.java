@@ -54,6 +54,7 @@ public class Device {
         capabilities.setCapability(FULL_RESET, config.fullReset());
         capabilities.setCapability(NO_RESET, config.noReset());
         capabilities.setCapability("autoLaunch", config.autoLaunch());
+        capabilities.setCapability("disableWindowAnimation", config.disableAnimation());
 
         capabilities.setCapability(DEVICE_NAME, config.emulated() ? DeviceType.EMULATOR.toString() : DeviceType.PHYSICAL.toString());
         capabilities.setCapability(PLATFORM_NAME, config.platform());
@@ -92,8 +93,8 @@ public class Device {
 
         AndroidDriver<AndroidElement> initializedDriver = new AndroidDriver<>(serverUrl, resolveCapabilities(deviceConfig, config));
         initializedDriver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
-        initializedDriver.setSetting(Setting.WAIT_FOR_IDLE_TIMEOUT, 50);
-        initializedDriver.setSetting(Setting.WAIT_FOR_SELECTOR_TIMEOUT, 50);
+        initializedDriver.setSetting(Setting.WAIT_FOR_IDLE_TIMEOUT, 0);
+        initializedDriver.setSetting(Setting.WAIT_FOR_SELECTOR_TIMEOUT, 0);
 
         driver.set(initializedDriver);
         devices.add(this);

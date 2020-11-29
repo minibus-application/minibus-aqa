@@ -9,9 +9,13 @@ import org.minibus.aqa.main.core.env.Device;
 import org.minibus.aqa.main.core.helpers.ScrollHelper;
 import org.minibus.aqa.main.core.helpers.VisibilityHelper;
 import org.minibus.aqa.main.domain.data.schedule.DirectionData;
+import org.minibus.aqa.main.domain.data.schedule.TripData;
 import org.minibus.aqa.main.domain.screens.BaseLoadableScreen;
 import org.minibus.aqa.main.domain.screens.cities.CitiesScreen;
+import org.openqa.selenium.Rectangle;
+import org.openqa.selenium.support.CacheLookup;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ScheduleScreen extends BaseLoadableScreen {
@@ -40,8 +44,10 @@ public class ScheduleScreen extends BaseLoadableScreen {
     @AndroidFindBy(id = "container_hud")
     private AndroidElement progressHud;
 
+    @CacheLookup
     private ScheduleCalendarWidget calendar;
-    private List<RouteTripWidget> routeTrips;
+
+    private List<TripWidget> trips;
 
     private static final String SCREEN_NAME = "Schedule";
     private static final String DEFAULT_DEP_FIELD_VALUE = "From";
@@ -63,6 +69,10 @@ public class ScheduleScreen extends BaseLoadableScreen {
     @Override
     public boolean isLoading() {
         return VisibilityHelper.isVisible(progressHud, 0) || VisibilityHelper.isVisible(getProgressBar(), 0);
+    }
+
+    public AndroidElement getBtnSortBy() {
+        return btnSortBy;
     }
 
     @Step("Wait for Schedule screen to load ({timeoutSec} sec)")
@@ -138,7 +148,7 @@ public class ScheduleScreen extends BaseLoadableScreen {
     }
 
     public boolean isScheduleAvailable() {
-        return routeTrips.size() > 0;
+        return trips.size() > 0;
     }
 
     public boolean isRouteDirectionExpanded() {

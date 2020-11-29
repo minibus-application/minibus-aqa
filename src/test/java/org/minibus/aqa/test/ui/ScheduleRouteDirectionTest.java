@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 
 public class ScheduleRouteDirectionTest extends BaseUiTest {
 
-    @Test(priority = 1, groups = {TestGroup.UI},
+    @Test(groups = {TestGroup.UI},
             description = "When the app opens and initial loading completed then route direction view expands")
     public void testWhenInitialLoadingCompletedThenRouteDirectionViewExpands() {
         ScheduleScreen scheduleScreen = new ScheduleScreen();
@@ -23,7 +23,7 @@ public class ScheduleRouteDirectionTest extends BaseUiTest {
         test.assertTrue(scheduleScreen.isRouteDirectionExpanded(), "Route direction filter is expanded");
     }
 
-    @Test(priority = 2, groups = {TestGroup.UI},
+    @Test(groups = {TestGroup.UI},
             description = "When the app opens and initial loading completed then default route direction sets")
     public void testWhenInitialLoadingCompletedThenDefaultRouteDirectionSets() {
         ScheduleScreen scheduleScreen = new ScheduleScreen();
@@ -39,7 +39,7 @@ public class ScheduleRouteDirectionTest extends BaseUiTest {
                 scheduleScreen.getDirectionData().getDirectionDescription()));
     }
 
-    @Test(priority = 3, groups = {TestGroup.UI},
+    @Test(groups = {TestGroup.UI},
             description = "When user swap route direction then direction swaps")
     public void testWhenSwapRouteDirectionThenDirectionSwaps() {
         ScheduleScreen scheduleScreen = new ScheduleScreen();
@@ -57,7 +57,7 @@ public class ScheduleRouteDirectionTest extends BaseUiTest {
         test.assertNotEquals(newDirectionData, oldDirectionData, "Direction data is changed");
     }
 
-    @Test(priority = 4, groups = {TestGroup.UI},
+    @Test(groups = {TestGroup.UI},
             description = "When user changes route direction then corresponding fields get changed")
     public void testWhenRouteDirectionChangesThenCorrespondingFieldsGetChanged() {
         ScheduleScreen scheduleScreen = new ScheduleScreen();
@@ -84,7 +84,7 @@ public class ScheduleRouteDirectionTest extends BaseUiTest {
         test.assertEquals(scheduleScreen.getDirectionData().getDepCity(), route.getFrom().getName(), "Departure city stays with the old value");
     }
 
-    @Test(priority = 5, groups = {TestGroup.UI},
+    @Test(groups = {TestGroup.UI},
             description = "When user changes route direction then toolbar subtitle displays the same direction value")
     public void testWhenRouteDirectionChangesThenToolbarSubtitleDisplaysActualDirection() {
         ScheduleScreen scheduleScreen = new ScheduleScreen();
@@ -112,7 +112,7 @@ public class ScheduleRouteDirectionTest extends BaseUiTest {
         test.assertEquals(scheduleScreen.getSubtitle(), actualDirectionData.getDirectionDescription(), "Toolbar subtitle shows an actual direction");
     }
 
-    @Test(priority = 6, groups = {TestGroup.UI},
+    @Test(groups = {TestGroup.UI},
             description = "When user changes route direction then the choice restores after reopening the app")
     public void testWhenRouteDirectionChangesAndAppReopensThenChosenDirectionRestores() {
         ScheduleScreen scheduleScreen = new ScheduleScreen();

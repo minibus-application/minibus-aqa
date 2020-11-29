@@ -19,6 +19,14 @@ public class VisibilityHelper {
     private static final Logger LOGGER = LogManager.getLogger(VisibilityHelper.class);
     private static final int DEFAULT_ELEMENT_TIMEOUT = ConfigManager.getGeneralConfig().elementTimeout();
 
+    public static boolean isVisible(By selector, int timeoutSec) {
+        return fluentWaitUntil(AndroidElementExpectedConditions.presenceOfElementLocated(selector), timeoutSec);
+    }
+
+    public static boolean isInvisible(By selector, int timeoutSec) {
+        return fluentWaitUntil(AndroidElementExpectedConditions.absenceOfElementLocated(selector), timeoutSec);
+    }
+
     public static boolean isVisible(AndroidElement el, int timeoutSec) {
         return fluentWaitUntil(AndroidElementExpectedConditions.presenceOfElement(el), timeoutSec);
     }
@@ -133,6 +141,43 @@ public class VisibilityHelper {
 
                 public String toString() {
                     return "presence of element " + el;
+                }
+            };
+        }
+
+        public static AndroidElementExpectedCondition<AndroidElement> presenceOfElementLocated(By selector) {
+            return new AndroidElementExpectedCondition<AndroidElement>() {
+
+                @Override
+                public AndroidElement apply(AndroidDriver driver) {
+                    try {
+                        return AndroidElementExpectedConditions.elementIfVisible((AndroidElement) driver.findElement(selector));
+                    } catch (StaleElementReferenceException e) {
+                        return null;
+                    }
+                }
+
+                public String toString() {
+                    return "presence of element located by " + selector;
+                }
+            };
+        }
+
+        public static AndroidElementExpectedCondition<Boolean> absenceOfElementLocated(By selector) {
+            return new AndroidElementExpectedCondition<Boolean>() {
+
+                @Override
+                public Boolean apply(AndroidDriver driver) {
+                    try {
+                        driver.findElement(selector);
+                        return false;
+                    } catch (NoSuchElementException | StaleElementReferenceException e1) {
+                        return true;
+                    }
+                }
+
+                public String toString() {
+                    return "absence of element located by " + selector;
                 }
             };
         }

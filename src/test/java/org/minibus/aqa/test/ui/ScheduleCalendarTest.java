@@ -1,5 +1,6 @@
 package org.minibus.aqa.test.ui;
 
+import net.sf.cglib.core.Local;
 import org.minibus.aqa.main.core.helpers.DatesHelper;
 import org.minibus.aqa.main.core.helpers.RandomHelper;
 import org.minibus.aqa.main.domain.api.models.RouteDTO;
@@ -16,7 +17,7 @@ import java.util.List;
 
 public class ScheduleCalendarTest extends BaseUiTest {
 
-    @Test(priority = 1, groups = {TestGroup.UI},
+    @Test(groups = {TestGroup.UI},
             description = "When on the Schedule screen then the calendar has 7 days ahead")
     public void testWhenOnScheduleScreenThenCalendarIsWeekly() {
         ScheduleScreen scheduleScreen = new ScheduleScreen();
@@ -30,7 +31,7 @@ public class ScheduleCalendarTest extends BaseUiTest {
         test.assertEquals(scheduleScreen.getCalendar().getDates(), calendarDates, "The calendar has date values in the correct order");
     }
 
-    @Test(priority = 2, groups = {TestGroup.UI},
+    @Test(groups = {TestGroup.UI},
             description = "When on the Schedule screen then the calendar has 1 day selected by default")
     public void testWhenOnScheduleScreenThenCalendarHasFirstDaySelected() {
         final int selectedDatePosition = ScheduleCalendarWidget.DEFAULT_SELECTED_DATE_POSITION;
@@ -44,7 +45,7 @@ public class ScheduleCalendarTest extends BaseUiTest {
         test.assertEquals(actualSelectedDatePosition, selectedDatePosition, "Default selected calendar date position is correct");
     }
 
-    @Test(priority = 3, groups = {TestGroup.UI},
+    @Test(groups = {TestGroup.UI},
             description = "When user changes calendar date then active date changes")
     public void testWhenChangeCalendarDateThenActiveDateChanges() {
         ScheduleScreen scheduleScreen = new ScheduleScreen();
@@ -65,7 +66,7 @@ public class ScheduleCalendarTest extends BaseUiTest {
         test.assertEquals(scheduleScreen.getCalendar().getSelectedDatesCount(), 1, "There is only one currently selected date");
     }
 
-    @Test(priority = 4, groups = {TestGroup.UI}, dataProvider = "dataProvider_RouteWithNonOperationalDays",
+    @Test(groups = {TestGroup.UI}, dataProvider = "dataProvider_RouteWithNonOperationalDays",
             description = "When on the route is chosen then the calendar has correct set of operational days")
     public void testWhenRouteIsChosenThenCalendarHasCorrectSetOfOperationalDays(RouteDTO route) {
         ScheduleScreen scheduleScreen = new ScheduleScreen();
@@ -73,6 +74,7 @@ public class ScheduleCalendarTest extends BaseUiTest {
 
         CitiesScreen departureCitiesScreen = scheduleScreen.openDepartureCitiesScreen();
         departureCitiesScreen.selectCity(route.getFrom().getName());
+        scheduleScreen.waitForContentLoading();
 
         CitiesScreen arrivalCitiesScreen = scheduleScreen.openArrivalCitiesScreen();
         arrivalCitiesScreen.selectCity(route.getTo().getName());
@@ -84,7 +86,7 @@ public class ScheduleCalendarTest extends BaseUiTest {
         test.assertEquals(actualOperationalDates, expectedOperationalDates, "Calendar displays correct set of operational days");
     }
 
-    @Test(priority = 5, groups = {TestGroup.UI},
+    @Test(groups = {TestGroup.UI},
             description = "When user taps on active calendar date then the date remains checked")
     public void testWhenTapOnActiveCalendarDateThenDateRemainsChecked() {
         ScheduleScreen scheduleScreen = new ScheduleScreen();
@@ -107,7 +109,7 @@ public class ScheduleCalendarTest extends BaseUiTest {
                 "Checked calendar date remains on the same position");
     }
 
-    @Test(priority = 6, groups = {TestGroup.UI}, dataProvider = "dataProvider_RouteWithNonOperationalDays",
+    @Test(groups = {TestGroup.UI}, dataProvider = "dataProvider_RouteWithNonOperationalDays",
             description = "When schedule route has non operational day then corresponding calendar date is not clickable")
     public void testWhenRouteHasNonOperationalDayThenCalendarDateIsNotClickable(RouteDTO route) {
         ScheduleScreen scheduleScreen = new ScheduleScreen();
@@ -115,6 +117,7 @@ public class ScheduleCalendarTest extends BaseUiTest {
 
         CitiesScreen departureCitiesScreen = scheduleScreen.openDepartureCitiesScreen();
         departureCitiesScreen.selectCity(route.getFrom().getName());
+        scheduleScreen.waitForContentLoading();
 
         CitiesScreen arrivalCitiesScreen = scheduleScreen.openArrivalCitiesScreen();
         arrivalCitiesScreen.selectCity(route.getTo().getName());

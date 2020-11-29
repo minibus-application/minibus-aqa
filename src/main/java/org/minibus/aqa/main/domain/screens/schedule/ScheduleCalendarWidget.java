@@ -5,6 +5,7 @@ import io.qameta.allure.Step;
 import org.apache.commons.lang3.tuple.Pair;
 import org.minibus.aqa.main.domain.screens.BaseWidget;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.CacheLookup;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -38,7 +39,7 @@ public class ScheduleCalendarWidget extends BaseWidget {
             CalendarDayWidget calendarDay = calendarDays.get(opt.getAsInt());
             calendarDay.click();
         } else {
-            throw new RuntimeException("Such date was not found: " + date.toString());
+            throw new RuntimeException("Such date was not found: " + date);
         }
     }
 

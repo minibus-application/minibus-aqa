@@ -20,7 +20,6 @@ import org.testng.annotations.BeforeSuite;
 import java.time.LocalDateTime;
 
 public abstract class BaseUiTest extends BaseTest {
-    private AndroidDriver<AndroidElement> driver;
 
     @BeforeSuite(groups = {TestGroup.UI})
     public void beforeSuite(ITestContext context) {
@@ -28,18 +27,13 @@ public abstract class BaseUiTest extends BaseTest {
 
         if (ConfigManager.getAppiumConfig().host() != null && ConfigManager.getAppiumConfig().port() != null) {
             // assuming the appium server is standalone
-            driver = new Device().create(ConfigManager.getAppiumConfig().url(),
+            new Device().create(ConfigManager.getAppiumConfig().url(),
                     ConfigManager.getDeviceConfig(), ConfigManager.getDeviceGeneralConfig());
         } else {
             AppiumLocalManager.getService(new AppiumServiceBuilder().usingAnyFreePort()).start();
-            driver = new Device().create(AppiumLocalManager.getService().getServiceUrl(),
+            new Device().create(AppiumLocalManager.getService().getServiceUrl(),
                     ConfigManager.getDeviceConfig(), ConfigManager.getDeviceGeneralConfig());
         }
-
-        // disable device animations to increase performance and speed
-        MobileCommandHelper.shell("settings", "put", "global", "window_animation_scale", "0");
-        MobileCommandHelper.shell("settings", "put", "global", "transition_animation_scale", "0");
-        MobileCommandHelper.shell("settings", "put", "global", "animator_duration_scale", "0");
     }
 
     @BeforeMethod(groups = {TestGroup.UI})
@@ -49,31 +43,27 @@ public abstract class BaseUiTest extends BaseTest {
 
         if (!isAppOpened) {
             if (ConfigManager.getDeviceGeneralConfig().fullReset()) {
-                AppInteractionsHelper.installAndOpenAppUnderTest(driver);
+                AppInteractionsHelper.installAndOpenAppUnderTest(getDriver());
             } else {
-                AppInteractionsHelper.openAppUnderTest(driver);
+                AppInteractionsHelper.openAppUnderTest(getDriver());
             }
         }
     }
 
     @AfterMethod(groups = {TestGroup.UI})
     public void afterMethod() {
-        AppInteractionsHelper.closeAppUnderTest(driver);
+        AppInteractionsHelper.closeAppUnderTest(getDriver());
     }
 
     @AfterSuite(groups = {TestGroup.UI})
     public void afterSuite(ITestContext context) {
-        MobileCommandHelper.shell("settings", "put", "global", "window_animation_scale", "1");
-        MobileCommandHelper.shell("settings", "put", "global", "transition_animation_scale", "1");
-        MobileCommandHelper.shell("settings", "put", "global", "animator_duration_scale", "1");
-
         Device.quit();
 
         if (AppiumLocalManager.isRunning()) AppiumLocalManager.stop();
     }
 
     protected AndroidDriver<AndroidElement> getDriver() {
-        return driver;
+        return Device.getDriver();
     }
 
     private boolean waitUntilAppOpened(int timeoutSec) {
@@ -81,7 +71,7 @@ public abstract class BaseUiTest extends BaseTest {
         LOGGER.debug("Waiting for the app to open ({} sec)", timeoutSec);
 
         do {
-            if (AppInteractionsHelper.isAppUnderTestOpened(driver)) {
+            if (AppInteractionsHelper.isAppUnderTestOpened(getDriver())) {
                 LOGGER.debug("The app is opened");
                 return true;
             }

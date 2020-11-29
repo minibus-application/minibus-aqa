@@ -8,6 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.minibus.aqa.main.core.env.config.ConfigManager;
 import org.minibus.aqa.main.core.helpers.VisibilityHelper;
+import org.openqa.selenium.support.CacheLookup;
 import org.openqa.selenium.support.PageFactory;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +16,7 @@ import java.time.Duration;
 
 public abstract class BaseScreen implements Screen {
 
+    @CacheLookup
     @AndroidFindBy(id = "tv_toolbar_title")
     private AndroidElement textTitle;
 
