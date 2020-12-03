@@ -76,7 +76,10 @@ public class TestListener implements ITestListener, IConfigurationListener {
 
     @Override
     public void onFinish(ITestContext iTestContext) {
-        LOGGER.info("[FINISH][FAILED:{}][SUCCEEDED:{}]", iTestContext.getFailedTests().size(), iTestContext.getPassedTests().size());
+        LOGGER.info("[FINISH][SUCCEEDED:{}][FAILED:{}][SKIPPED:{}]",
+                iTestContext.getPassedTests().size(),
+                iTestContext.getFailedTests().size(),
+                iTestContext.getSkippedTests().size());
     }
 
     @Override

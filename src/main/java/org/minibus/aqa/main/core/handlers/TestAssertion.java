@@ -64,7 +64,7 @@ public class TestAssertion extends Assertion {
     public void onAssertFailure(IAssert<?> iAssert, AssertionError assertionError) {
         String assertionMessage = iAssert.getMessage() == null ? assertionError.getMessage() : iAssert.getMessage();
 
-        Allure.step(getFormattedMessage(assertionMessage), Status.FAILED);
+        Allure.step(assertionMessage, Status.FAILED);
 
         pushAttachment(assertionError.getMessage());
         pushScreenshot(Device.getDriver().getScreenshotAs(OutputType.BASE64));
