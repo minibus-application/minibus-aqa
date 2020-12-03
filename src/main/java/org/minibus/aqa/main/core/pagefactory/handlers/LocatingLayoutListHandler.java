@@ -2,7 +2,7 @@ package org.minibus.aqa.main.core.pagefactory.handlers;
 
 import org.minibus.aqa.main.core.pagefactory.ViewFieldDecorator;
 import org.minibus.aqa.main.core.pagefactory.elements.base.Layout;
-import org.minibus.aqa.main.core.pagefactory.factories.LayoutFactory;
+import org.minibus.aqa.main.core.pagefactory.factories.ViewFactory;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.PageFactory;
@@ -33,7 +33,7 @@ public class LocatingLayoutListHandler implements InvocationHandler {
         List<Layout> layouts = new ArrayList<>();
 
         for (WebElement elementToWrap : elementsToWrap) {
-            Layout layout = new LayoutFactory().create(layoutClass, elementToWrap, logicalName, by);
+            Layout layout = new ViewFactory().createInstance(layoutClass, elementToWrap, logicalName, by);
             layouts.add(layout);
             PageFactory.initElements(new ViewFieldDecorator(elementToWrap), layout);
         }
