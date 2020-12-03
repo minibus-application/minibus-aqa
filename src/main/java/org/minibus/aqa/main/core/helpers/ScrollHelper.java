@@ -1,6 +1,5 @@
 package org.minibus.aqa.main.core.helpers;
 
-import io.appium.java_client.android.AndroidElement;
 import io.appium.java_client.android.AndroidTouchAction;
 import io.appium.java_client.touch.WaitOptions;
 import io.appium.java_client.touch.offset.PointOption;
@@ -8,122 +7,160 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.minibus.aqa.main.core.env.Device;
-import org.openqa.selenium.By;
-import org.openqa.selenium.Dimension;
-import org.openqa.selenium.Point;
-import org.openqa.selenium.Rectangle;
+import org.minibus.aqa.main.core.pagefactory.elements.base.View;
+import org.openqa.selenium.*;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 
 final public class ScrollHelper {
     private static final Logger LOGGER = LogManager.getLogger(ScrollHelper.class);
-    private static final Duration DEFAULT_SCROLL_DURATION = Duration.ofMillis(800);
+    private static final Duration DEFAULT_SCROLL_DURATION = Duration.ofMillis(600);
+    private static final double DEFAULT_AREA_PADDING = 0.8;
     private static final Duration DEFAULT_ELEMENT_SEARCH_TIMEOUT = Duration.ofSeconds(25);
-    private static final int DEFAULT_AREA_OFFSET = 10;
 
-    public static void scrollToBottom(Rectangle onArea) {
-        String pageSourceBeforeScroll;
-        do {
-            pageSourceBeforeScroll = Device.getDriver().getPageSource();
-            scrollByDirection(onArea, ScrollDirection.DOWN);
-        } while(!Device.getDriver().getPageSource().equals(pageSourceBeforeScroll));
-    }
-
-    public static boolean scrollToElementByDirection(Rectangle onArea, AndroidElement toElement, ScrollDirection byDirection) {
-        if (VisibilityHelper.isInvisible(toElement, 0)) {
-            String pageSourceBeforeScroll;
-            LocalDateTime timeout = LocalDateTime.now().plusSeconds(DEFAULT_ELEMENT_SEARCH_TIMEOUT.getSeconds());
-
-            do {
-                pageSourceBeforeScroll = Device.getDriver().getPageSource();
-                scrollByDirection(onArea, byDirection);
-            } while(VisibilityHelper.isInvisible(toElement, 0)
-                    && LocalDateTime.now().isBefore(timeout)
-                    && !Device.getDriver().getPageSource().equals(pageSourceBeforeScroll));
-
-            return VisibilityHelper.isVisible(toElement, 0);
-        } else {
-            return true;
-        }
-    }
-
-    public static boolean scrollToElementByDirection(Rectangle onArea, By selector, ScrollDirection byDirection) {
-        if (VisibilityHelper.isInvisible(selector, 0)) {
-            String pageSourceBeforeScroll;
-            LocalDateTime timeout = LocalDateTime.now().plusSeconds(DEFAULT_ELEMENT_SEARCH_TIMEOUT.getSeconds());
-
-            do {
-                pageSourceBeforeScroll = Device.getDriver().getPageSource();
-                scrollByDirection(onArea, byDirection);
-            } while(VisibilityHelper.isInvisible(selector, 0)
-                    && LocalDateTime.now().isBefore(timeout)
-                    && !Device.getDriver().getPageSource().equals(pageSourceBeforeScroll));
-
-            return VisibilityHelper.isVisible(selector, 0);
-        } else {
-            return true;
-        }
-    }
-
-    public static boolean scrollToElementByDirection(AndroidElement toElement, ScrollDirection byDirection) {
-        return scrollToElementByDirection(getDefaultScrollArea(), toElement, byDirection);
-    }
-
-    public static void scrollByDirection(Rectangle onArea, ScrollDirection byDirection) {
-        Point topCenter = new Point(onArea.getX() + (onArea.getWidth() / 2), onArea.getY() + DEFAULT_AREA_OFFSET);
-        Point bottomCenter = new Point(onArea.getX() + (onArea.getWidth() / 2), onArea.getY() + (onArea.getHeight() - DEFAULT_AREA_OFFSET));
-        Point leftCenter = new Point(onArea.getX() + DEFAULT_AREA_OFFSET, onArea.getY() + (onArea.getHeight() / 2));
-        Point rightCenter = new Point(onArea.getX() + onArea.getWidth() - DEFAULT_AREA_OFFSET, onArea.getY() + (onArea.getHeight() / 2));
-
-        switch (byDirection) {
-            case DOWN:
-                LOGGER.debug("Scrolling to the {}: {} -> {}", byDirection, bottomCenter, topCenter);
-                scroll(bottomCenter, topCenter);
-                break;
-            case UP:
-                LOGGER.debug("Scrolling to the {}: {} -> {}", byDirection, topCenter, bottomCenter);
-                scroll(topCenter, bottomCenter);
-                break;
-            case RIGHT:
-                LOGGER.debug("Scrolling to the {}: {} -> {}", byDirection, rightCenter, leftCenter);
-                scroll(rightCenter, leftCenter);
-                break;
-            case LEFT:
-                LOGGER.debug("Scrolling to the {}: {} -> {}", byDirection, leftCenter, rightCenter);
-                scroll(leftCenter, rightCenter);
-                break;
-            default:
-                throw new NotImplementedException(byDirection.name() + " is not implemented");
-        }
-    }
-
-    public static void scrollByDirection(AndroidElement onElement, ScrollDirection byDirection) {
-        if (onElement == null) {
-            scrollByDirection(byDirection);
-        } else {
-            scrollByDirection(onElement.getRect(), byDirection);
-        }
-    }
-
-    public static void scrollByDirection(ScrollDirection byDirection) {
-        scrollByDirection(getDefaultScrollArea(), byDirection);
-    }
-
-    public static void scroll(Point startPoint, Point endPoint) {
+    public static void scroll(Point startPoint, Point endPoint, Duration duration) {
         new AndroidTouchAction(Device.getDriver()).press(PointOption.point(startPoint))
-                .waitAction(WaitOptions.waitOptions(DEFAULT_SCROLL_DURATION))
+                .waitAction(WaitOptions.waitOptions(duration))
                 .moveTo(PointOption.point(endPoint))
                 .release()
                 .perform();
     }
 
-    private static Rectangle getDefaultScrollArea() {
+    public static void scrollToBottom(Rectangle onArea) {
+        String pageSourceBeforeScroll;
+        do {
+            pageSourceBeforeScroll = Device.getDriver().getPageSource();
+            scrollByDirection(ScrollDirection.DOWN, onArea);
+        } while (!Device.getDriver().getPageSource().equals(pageSourceBeforeScroll));
+    }
+
+    public static void scrollByDirection(ScrollDirection byDirection, Rectangle onArea, Duration duration, double padding) {
+        if (padding < 0 || padding > 1) throw new RuntimeException("Scrolling area padding must be between 0 and 1");
+
+        Dimension areaSize = onArea.getDimension();
+        Point middlePoint = new Point(areaSize.getWidth() / 2 + onArea.x, areaSize.getHeight() / 2 + onArea.y);
+        Point middleTopPoint = new Point(middlePoint.x, middlePoint.y - (int) ((areaSize.height * padding) * 0.5));
+        Point middleBottomPoint = new Point(middlePoint.x, middlePoint.y + (int) ((areaSize.height * padding) * 0.5));
+        Point middleRightPoint = new Point(middlePoint.x + (int) ((areaSize.width * padding) * 0.5), middlePoint.y);
+        Point middleLeftPoint = new Point(middlePoint.x - (int) ((areaSize.width * padding) * 0.5), middlePoint.y);
+
+        switch (byDirection) {
+            case DOWN:
+                LOGGER.trace("Scrolling to the {}: {} -> {}", byDirection, middleBottomPoint, middleTopPoint);
+                scroll(middleBottomPoint, middleTopPoint, duration);
+                break;
+            case UP:
+                LOGGER.trace("Scrolling to the {}: {} -> {}", byDirection, middleTopPoint, middleBottomPoint);
+                scroll(middleTopPoint, middleBottomPoint, duration);
+                break;
+            case RIGHT:
+                LOGGER.trace("Scrolling to the {}: {} -> {}", byDirection, middleRightPoint, middleLeftPoint);
+                scroll(middleRightPoint, middleLeftPoint, duration);
+                break;
+            case LEFT:
+                LOGGER.trace("Scrolling to the {}: {} -> {}", byDirection, middleRightPoint, middleLeftPoint);
+                scroll(middleLeftPoint, middleRightPoint, duration);
+                break;
+            default:
+                throw new NotImplementedException(byDirection + " is not implemented");
+        }
+    }
+
+    public static boolean scrollToViewByDirection(ScrollDirection byDirection, Rectangle onArea, View toView, Duration withDuration, double withPadding) {
+        if (!toView.isVisible()) {
+            String pageSourceBeforeScroll;
+            LocalDateTime timeout = LocalDateTime.now().plusSeconds(DEFAULT_ELEMENT_SEARCH_TIMEOUT.getSeconds());
+
+            do {
+                pageSourceBeforeScroll = Device.getDriver().getPageSource();
+                scrollByDirection(byDirection, onArea, withDuration, withPadding);
+            } while (!toView.isVisible()
+                    && LocalDateTime.now().isBefore(timeout)
+                    && !Device.getDriver().getPageSource().equals(pageSourceBeforeScroll));
+
+            return toView.isVisible();
+        } else {
+            return true;
+        }
+    }
+
+    public static boolean scrollToViewByDirection(ScrollDirection byDirection, Rectangle onArea, View toView) {
+        return scrollToViewByDirection(byDirection, onArea, toView, DEFAULT_SCROLL_DURATION, DEFAULT_AREA_PADDING);
+    }
+
+    public static boolean scrollToViewByDirection(ScrollDirection byDirection, Rectangle onArea, View toView, Duration withDuration) {
+        return scrollToViewByDirection(byDirection, onArea, toView, withDuration, DEFAULT_AREA_PADDING);
+    }
+
+    public static boolean scrollToViewByDirection(ScrollDirection byDirection, Rectangle onArea, View toView, double withPadding) {
+        return scrollToViewByDirection(byDirection, onArea, toView, DEFAULT_SCROLL_DURATION, withPadding);
+    }
+
+    public static boolean scrollToViewByDirection(ScrollDirection byDirection, View toView) {
+        return scrollToViewByDirection(byDirection, getDefaultScrollingArea(), toView, DEFAULT_SCROLL_DURATION, DEFAULT_AREA_PADDING);
+    }
+
+    public static boolean scrollToViewByDirection(ScrollDirection byDirection, View toView, Duration withDuration) {
+        return scrollToViewByDirection(byDirection, getDefaultScrollingArea(), toView, withDuration, DEFAULT_AREA_PADDING);
+    }
+
+    public static boolean scrollToViewByDirection(ScrollDirection byDirection, View toView, double withPadding) {
+        return scrollToViewByDirection(byDirection, getDefaultScrollingArea(), toView, DEFAULT_SCROLL_DURATION, withPadding);
+    }
+
+    public static void scrollByDirection(ScrollDirection byDirection) {
+        scrollByDirection(byDirection, getDefaultScrollingArea(), DEFAULT_SCROLL_DURATION, DEFAULT_AREA_PADDING);
+    }
+
+    public static void scrollByDirection(ScrollDirection byDirection, Duration withDuration) {
+        scrollByDirection(byDirection, getDefaultScrollingArea(), withDuration, DEFAULT_AREA_PADDING);
+    }
+
+    public static void scrollByDirection(ScrollDirection byDirection, double withPadding) {
+        scrollByDirection(byDirection, getDefaultScrollingArea(), DEFAULT_SCROLL_DURATION, withPadding);
+    }
+
+    public static void scrollByDirection(ScrollDirection byDirection, Rectangle onArea, Duration withDuration) {
+        scrollByDirection(byDirection, onArea, withDuration, DEFAULT_AREA_PADDING);
+    }
+
+    public static void scrollByDirection(ScrollDirection byDirection, Rectangle onArea, double withPadding) {
+        scrollByDirection(byDirection, onArea, DEFAULT_SCROLL_DURATION, withPadding);
+    }
+
+    public static void scrollByDirection(ScrollDirection byDirection, Rectangle onArea) {
+        scrollByDirection(byDirection, onArea, DEFAULT_SCROLL_DURATION, DEFAULT_AREA_PADDING);
+    }
+
+    public static void scrollByDirection(ScrollDirection byDirection, View onView) {
+        scrollByDirection(byDirection, onView.getRect(), DEFAULT_SCROLL_DURATION, DEFAULT_AREA_PADDING);
+    }
+
+    public static void scrollByDirection(ScrollDirection byDirection, View onView, Duration duration) {
+        scrollByDirection(byDirection, onView.getRect(), duration, DEFAULT_AREA_PADDING);
+    }
+
+    public static void scrollByDirection(ScrollDirection byDirection, View onView, double padding) {
+        scrollByDirection(byDirection, onView.getRect(), DEFAULT_SCROLL_DURATION, padding);
+    }
+
+    public static void scrollByDirection(ScrollDirection byDirection, View onView, Duration duration, double padding) {
+        scrollByDirection(byDirection, onView.getRect(), duration, padding);
+    }
+
+    private static Duration getDefaultDurationMs(ScrollDirection direction, Rectangle area) {
+        final int durationFactor = 2;
+        if (direction.equals(ScrollDirection.DOWN) || direction.equals(ScrollDirection.UP)) {
+            return Duration.ofMillis(area.getHeight() * durationFactor);
+        } else {
+            return Duration.ofMillis(area.getWidth() * durationFactor);
+        }
+    }
+
+    private static Rectangle getDefaultScrollingArea() {
         Dimension screenDimension = Device.getDriver().manage().window().getSize();
-        Dimension halfScreenDimension = new Dimension(screenDimension.getWidth(), screenDimension.getHeight() / 2);
-        // Modify start screen point to be in a center of the height (to avoid triggering the status bar panel)
-        Point screenPoint = new Point(Device.getDriver().manage().window().getPosition().getX(), halfScreenDimension.getHeight());
-        return new Rectangle(screenPoint, halfScreenDimension);
+        return new Rectangle(new Point(0, 0), screenDimension);
     }
 
     public enum ScrollDirection {
