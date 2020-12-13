@@ -1,9 +1,9 @@
-package org.minibus.aqa.main.core.page_factory.elements;
+package org.minibus.aqa.main.domain.screens.schedule;
 
 import io.qameta.allure.Step;
 import org.apache.commons.lang3.tuple.Pair;
-import org.minibus.aqa.main.core.page_factory.locators.ViewFindBy;
-import org.minibus.aqa.main.domain.screens.schedule.CalendarDayWidget;
+import org.minibus.aqa.main.core.pagefactory.annotations.ViewInfo;
+import org.minibus.aqa.main.core.pagefactory.elements.AndroidLayout;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -14,14 +14,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class ScheduleCalendarLayout extends AndroidLayout {
+public class CalendarLayout extends AndroidLayout {
 
-    @ViewFindBy(name = "Calendar date", findBy = @FindBy(id = "ll_date_container"))
+    @ViewInfo(name = "Calendar date", findBy = @FindBy(id = "ll_date_container"))
     private List<CalendarDayLayout> calendarDays;
 
     public static final int DEFAULT_SELECTED_DATE_POSITION = 1;
 
-    public ScheduleCalendarLayout(WebElement wrappedElement, String logicalName, By by) {
+    public CalendarLayout(WebElement wrappedElement, String logicalName, By by) {
         super(wrappedElement, logicalName, by);
     }
 
@@ -45,6 +45,10 @@ public class ScheduleCalendarLayout extends AndroidLayout {
 
     public boolean isOperationalDay(final LocalDate date) {
         return getOperationalDates().contains(date);
+    }
+
+    public int getCapacity() {
+        return calendarDays.size();
     }
 
     public List<LocalDate> getOperationalDates() {

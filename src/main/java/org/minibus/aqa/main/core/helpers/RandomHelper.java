@@ -6,10 +6,7 @@ import org.apache.logging.log4j.Logger;
 import org.bson.types.ObjectId;
 import org.minibus.aqa.main.Constants;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class RandomHelper {
@@ -24,12 +21,7 @@ public class RandomHelper {
     }
 
     public static <T> T getAny(List<T> list) {
-        LOGGER.debug("Get any from list: {}", list);
-
-        T res = list.get(new Random().nextInt(list.size()));
-
-        LOGGER.debug("Result is: {}", res);
-        return res;
+        return getAny(list, new ArrayList<>());
     }
 
     public static <T> T getAny(List<T> list, T... except) {
@@ -37,14 +29,16 @@ public class RandomHelper {
     }
 
     public static <T> T getAny(List<T> list, List<T> except) {
-        LOGGER.debug("Get any from list: {}, except: {}", list, except);
+        if (except != null && except.size() > 0) {
+            list = list.stream().filter(x -> !except.contains(x)).collect(Collectors.toList());
+        }
 
-        T res = list.stream()
-                .filter(x -> except == null || !except.contains(x))
-                .collect(Collectors.toList())
-                .get(new Random().nextInt(list.size() - (except == null ? 0 : except.size())));
+        LOGGER.trace("Get any from list: {}", except);
 
-        LOGGER.debug("Result is: {}", res);
+        Collections.shuffle(list);
+        T res = list.get(0);
+
+        LOGGER.trace("Result is: {}", res);
         return res;
     }
 }

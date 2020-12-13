@@ -4,20 +4,20 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 
-public class InputFieldView extends AndroidView {
+public class InputView extends AndroidView {
 
-    public InputFieldView(WebElement wrappedElement, String logicalName, By by) {
+    public InputView(WebElement wrappedElement, String logicalName, By by) {
         super(wrappedElement, logicalName, by);
     }
 
     public void set(String text) {
-        LOGGER.trace("Set '{}' text to {} view", text, getLogicalName());
+        LOGGER.trace("Set '{}' text to view: {}", text, getName());
         clear();
         getWrappedElement().sendKeys(text);
     }
 
     public void append(String text) {
-        LOGGER.trace("Append '{}' text to {} view", text, getLogicalName());
+        LOGGER.trace("Append '{}' text to view: {}", text, getName());
         getWrappedElement().sendKeys(text);
     }
 

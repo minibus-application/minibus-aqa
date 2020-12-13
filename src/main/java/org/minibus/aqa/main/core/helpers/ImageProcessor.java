@@ -4,6 +4,8 @@ import com.sun.istack.NotNull;
 import io.appium.java_client.android.AndroidElement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.minibus.aqa.main.core.pagefactory.elements.AndroidView;
+import org.minibus.aqa.main.core.pagefactory.elements.base.View;
 import org.openqa.selenium.OutputType;
 
 import javax.imageio.ImageIO;
@@ -47,8 +49,8 @@ public class ImageProcessor {
         return null;
     }
 
-    public static boolean hasColor(AndroidElement element, ImageColor color, ImageRegion region) {
-        BufferedImage image = getElementBufferedImage(element);
+    public static boolean hasColor(View view, ImageColor color, ImageRegion region) {
+        BufferedImage image = getElementBufferedImage(view);
         int width = image.getWidth();
         int height = image.getHeight();
 
@@ -97,19 +99,19 @@ public class ImageProcessor {
         return colorMatchesWithinImage != 0 && (colorMatchesWithinImage >= totalColoredPixels / 2);
     }
 
-    public static boolean hasColor(AndroidElement element, ImageColor color) {
-        return hasColor(getElementBufferedImage(element), color);
+    public static boolean hasColor(View view, ImageColor color) {
+        return hasColor(getElementBufferedImage(view), color);
     }
 
-    public static boolean hasColor(AndroidElement element, String hexColor) {
-        return hasColor(element, getPureColor(Color.decode(hexColor).getRGB()));
+    public static boolean hasColor(View view, String hexColor) {
+        return hasColor(view, getPureColor(Color.decode(hexColor).getRGB()));
     }
 
-    public static BufferedImage getElementBufferedImage(AndroidElement element) {
+    public static BufferedImage getElementBufferedImage(View view) {
         BufferedImage bufferedImage = null;
 
         try {
-            byte[] decodedImg = element.getScreenshotAs(OutputType.BYTES);
+            byte[] decodedImg = view.getWrappedElement().getScreenshotAs(OutputType.BYTES);
             bufferedImage = ImageIO.read(new ByteArrayInputStream(decodedImg));
         } catch (IOException e) {
             LOGGER.error("An error while reading image bytes");

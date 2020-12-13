@@ -18,12 +18,12 @@ public interface View {
 
     WebElement getWrappedElement();
 
-    String getLogicalName();
+    String getName();
 
     By getBy();
 
     default void tap() {
-        LOGGER.trace("Tap on {} view", getLogicalName().toUpperCase());
+        LOGGER.trace("Tap on view: {}", getName().toUpperCase());
         getWrappedElement().click();
     }
 
@@ -47,13 +47,13 @@ public interface View {
     }
 
     default void scroll(ScrollHelper.ScrollDirection direction) {
-        LOGGER.trace("Scroll over {} view", getLogicalName().toUpperCase());
+        LOGGER.trace("Scroll over view: {}", getName().toUpperCase());
         ScrollHelper.scrollByDirection(direction, getRect());
     }
 
-    default boolean isVisible() {
+    default boolean exists() {
         try {
-            LOGGER.trace("Check whether {} view is visible or not", getLogicalName().toUpperCase());
+            LOGGER.trace("Check view existence: {}", getName().toUpperCase());
             return getWrappedElement().isDisplayed();
         } catch (NoSuchElementException ignore) {
             return false;
@@ -70,7 +70,7 @@ public interface View {
 
     default boolean waitUntilVisible(int timeoutSec) {
         try {
-            LOGGER.trace("Explicitly wait for {} view to become visible ({} sec)", getLogicalName().toUpperCase(), timeoutSec);
+            LOGGER.trace("Wait for view visibility ({} sec): {}", timeoutSec, getName().toUpperCase());
             getDefaultWait(timeoutSec).until(ExpectedConditions.visibilityOfElementLocated(getBy()));
             return true;
         } catch (WebDriverException ignore) {
@@ -80,7 +80,7 @@ public interface View {
 
     default boolean waitUntilInvisible(int timeoutSec) {
         try {
-            LOGGER.trace("Explicitly wait for {} view to become invisible ({} sec)", getLogicalName().toUpperCase(), timeoutSec);
+            LOGGER.trace("Wait for view invisibility ({} sec): {}", timeoutSec, getName().toUpperCase());
             getDefaultWait(timeoutSec).until(ExpectedConditions.invisibilityOfElementLocated(getBy()));
             return true;
         } catch (WebDriverException ignore) {

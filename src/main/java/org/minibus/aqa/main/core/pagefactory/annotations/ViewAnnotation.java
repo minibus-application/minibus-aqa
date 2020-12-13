@@ -25,9 +25,9 @@ public class ViewAnnotation extends Annotations {
             AbstractFindByBuilder builder = null;
             Class<? extends Annotation> annotationType = annotation.annotationType();
 
-            if (annotationType.equals(ViewFindBy.class)) {
-                ViewFindBy viewFindBy = field.getAnnotation(ViewFindBy.class);
-                FindBy findBy = viewFindBy.findBy();
+            if (annotationType.equals(ViewInfo.class)) {
+                ViewInfo viewInfo = field.getAnnotation(ViewInfo.class);
+                FindBy findBy = viewInfo.findBy();
                 annotation = findBy;
                 annotationType = findBy.annotationType();
             }
@@ -62,11 +62,11 @@ public class ViewAnnotation extends Annotations {
         FindAll findAll;
         FindBy findBy;
 
-        if (field.isAnnotationPresent(ViewFindBy.class)) {
-            ViewFindBy viewFindBy = field.getAnnotation(ViewFindBy.class);
-            findBys = viewFindBy.annotationType().getAnnotation(FindBys.class);
-            findAll = viewFindBy.annotationType().getAnnotation(FindAll.class);
-            findBy = viewFindBy.annotationType().getAnnotation(FindBy.class);
+        if (field.isAnnotationPresent(ViewInfo.class)) {
+            ViewInfo viewInfo = field.getAnnotation(ViewInfo.class);
+            findBys = viewInfo.annotationType().getAnnotation(FindBys.class);
+            findAll = viewInfo.annotationType().getAnnotation(FindAll.class);
+            findBy = viewInfo.annotationType().getAnnotation(FindBy.class);
         } else {
             findBys = field.getAnnotation(FindBys.class);
             findAll = field.getAnnotation(FindAll.class);

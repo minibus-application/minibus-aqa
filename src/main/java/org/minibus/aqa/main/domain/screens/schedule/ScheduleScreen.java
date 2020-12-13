@@ -1,61 +1,50 @@
 package org.minibus.aqa.main.domain.screens.schedule;
 
-import io.appium.java_client.android.AndroidDriver;
-import io.appium.java_client.android.AndroidElement;
-import io.appium.java_client.pagefactory.AndroidFindBy;
 import io.qameta.allure.Step;
 import org.apache.commons.lang3.StringUtils;
 import org.minibus.aqa.main.core.env.Device;
-import org.minibus.aqa.main.core.helpers.ScrollHelper;
-import org.minibus.aqa.main.core.helpers.VisibilityHelper;
+import org.minibus.aqa.main.core.pagefactory.annotations.ViewInfo;
+import org.minibus.aqa.main.core.pagefactory.elements.AndroidView;
+import org.minibus.aqa.main.core.pagefactory.elements.ButtonView;
+import org.minibus.aqa.main.core.pagefactory.elements.TextView;
 import org.minibus.aqa.main.domain.data.schedule.DirectionData;
-import org.minibus.aqa.main.domain.data.schedule.TripData;
 import org.minibus.aqa.main.domain.screens.BaseLoadableScreen;
 import org.minibus.aqa.main.domain.screens.cities.CitiesScreen;
-import org.openqa.selenium.Rectangle;
-import org.openqa.selenium.support.CacheLookup;
+import org.openqa.selenium.support.FindBy;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public class ScheduleScreen extends BaseLoadableScreen {
 
-    @AndroidFindBy(id = "tv_toolbar_subtitle")
-    private AndroidElement textSubtitle;
+    @ViewInfo(name = "Toolbar subtitle", findBy = @FindBy(id = "tv_toolbar_subtitle"))
+    private TextView textSubtitle;
 
-    @AndroidFindBy(id = "et_dep_city")
-    private AndroidElement fieldDepartureCity;
+    @ViewInfo(name = "Departure city field", findBy = @FindBy(id = "et_dep_city"))
+    private AndroidView fieldDepartureCity;
 
-    @AndroidFindBy(id = "et_arr_city")
-    private AndroidElement fieldArrivalCity;
+    @ViewInfo(name = "Arrival city field", findBy = @FindBy(id = "et_arr_city"))
+    private AndroidView fieldArrivalCity;
 
-    @AndroidFindBy(id = "ib_swap_direction")
-    private AndroidElement btnSwapDirection;
+    @ViewInfo(name = "Swap direction button", findBy = @FindBy(id = "ib_swap_direction"))
+    private ButtonView buttonSwapDirection;
 
-    @AndroidFindBy(id = "btn_sort_by")
-    private AndroidElement btnSortBy;
+    @ViewInfo(name = "Sort By button", findBy = @FindBy(id = "btn_sort_by"))
+    private ButtonView buttonSortBy;
 
-    @AndroidFindBy(id = "fab_route_direction")
-    private AndroidElement fabRouteDirection;
+    @ViewInfo(name = "Direction button", findBy = @FindBy(id = "fab_route_direction"))
+    private ButtonView fabDirection;
 
-    @AndroidFindBy(id = "toolbar")
-    private AndroidElement toolbar;
+    @ViewInfo(name = "Toolbar", findBy = @FindBy(id = "toolbar"))
+    private AndroidView toolbar;
 
-    @AndroidFindBy(id = "container_hud")
-    private AndroidElement progressHud;
+    @ViewInfo(name = "Progress dialog", findBy = @FindBy(id = "container_hud"))
+    private AndroidView progressHud;
 
-    @CacheLookup
-    private ScheduleCalendarWidget calendar;
-
-    private List<TripWidget> trips;
+    @ViewInfo(name = "Schedule calendar layout", findBy = @FindBy(id = "rv_calendar"))
+    private CalendarLayout calendarLayout;
 
     private static final String SCREEN_NAME = "Schedule";
     private static final String DEFAULT_DEP_FIELD_VALUE = "From";
     private static final String DEFAULT_ARR_FIELD_VALUE = "To";
-
-    public ScheduleScreen(AndroidDriver<AndroidElement> driver) {
-        super(driver, SCREEN_NAME);
-    }
 
     public ScheduleScreen() {
         super(Device.getDriver(), SCREEN_NAME);
@@ -63,42 +52,38 @@ public class ScheduleScreen extends BaseLoadableScreen {
 
     @Override
     public boolean isOpened(int timeoutSec) {
-        return VisibilityHelper.isVisible(getTitleElement()) && getTitleElement().getText().equals(SCREEN_NAME);
+        return getTitleElement().exists() && getTitleElement().getText().equals(SCREEN_NAME);
     }
 
     @Override
     public boolean isLoading() {
-        return VisibilityHelper.isVisible(progressHud, 0) || VisibilityHelper.isVisible(getProgressBar(), 0);
+        return super.isLoading() || progressHud.exists();
     }
 
-    public AndroidElement getBtnSortBy() {
-        return btnSortBy;
-    }
-
-    @Step("Wait for Schedule screen to load ({timeoutSec} sec)")
     @Override
     public boolean waitForLoading(int timeoutSec) {
-        return VisibilityHelper.areInvisible(List.of(progressHud, getProgressBar()), timeoutSec);
+        return super.waitForLoading(timeoutSec) && progressHud.waitUntilInvisible(timeoutSec);
     }
 
     @Step("Wait for content to load")
     public boolean waitForContentLoading() {
-        return VisibilityHelper.isInvisible(getProgressBar(), getScreenTimeout());
+        return getProgressBar().waitUntilInvisible(getScreenTimeout());
     }
 
     @Step("Click on route direction floating action button")
     public void toggleRouteDirection() {
-        fabRouteDirection.click();
+        fabDirection.tap();
+        textSubtitle.waitUntilVisible();
     }
 
     @Step("Swap route direction")
     public void swapRouteDirection() {
-        btnSwapDirection.click();
+        buttonSwapDirection.tap();
     }
 
     @Step("Open departure cities screen")
     public CitiesScreen openDepartureCitiesScreen() {
-        fieldDepartureCity.click();
+        fieldDepartureCity.tap();
         CitiesScreen citiesScreen = new CitiesScreen(CitiesScreen.Type.DEPARTURE);
         citiesScreen.waitForLoading();
         return citiesScreen;
@@ -106,14 +91,14 @@ public class ScheduleScreen extends BaseLoadableScreen {
 
     @Step("Open arrival cities screen")
     public CitiesScreen openArrivalCitiesScreen() {
-        fieldArrivalCity.click();
+        fieldArrivalCity.tap();
         CitiesScreen citiesScreen = new CitiesScreen(CitiesScreen.Type.ARRIVAL);
         citiesScreen.waitForLoading();
         return citiesScreen;
     }
 
-    public ScheduleCalendarWidget getCalendar() {
-        return calendar;
+    public CalendarLayout getCalendar() {
+        return calendarLayout;
     }
 
     public DirectionData getDirectionData() {
@@ -125,7 +110,7 @@ public class ScheduleScreen extends BaseLoadableScreen {
     }
 
     public SortType getSelectedSortType() {
-        String type = StringUtils.substringAfterLast(btnSortBy.getText(), "Sort by");
+        String type = StringUtils.substringAfterLast(buttonSortBy.getText(), "Sort by");
         return SortType.fromString(type);
     }
 
@@ -147,12 +132,8 @@ public class ScheduleScreen extends BaseLoadableScreen {
         return !arrivalCityValue.isEmpty() && !arrivalCityValue.equals(DEFAULT_ARR_FIELD_VALUE);
     }
 
-    public boolean isScheduleAvailable() {
-        return trips.size() > 0;
-    }
-
     public boolean isRouteDirectionExpanded() {
-        return toolbar.getRect().getHeight() != calendar.getWrappedElement().getRect().getY();
+        return toolbar.getRect().getHeight() != calendarLayout.getWrappedElement().getRect().getY();
     }
 
     public enum SortType {

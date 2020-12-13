@@ -6,7 +6,6 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class DirectionData {
-
     private String depFieldValue;
     private String arrFieldValue;
 
@@ -26,7 +25,7 @@ public class DirectionData {
         return getFieldParts(arrFieldValue)[1];
     }
 
-    public String getDirectionDescription() {
+    public String getDirectionDesc() {
         return getDepCity() + " — " + getArrCity();
     }
 

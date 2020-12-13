@@ -1,11 +1,12 @@
 package org.minibus.aqa.main.domain.screens.cities;
 
-import io.appium.java_client.android.AndroidElement;
-import io.appium.java_client.pagefactory.AndroidFindBy;
 import io.qameta.allure.Step;
 import org.minibus.aqa.main.core.env.Device;
+import org.minibus.aqa.main.core.pagefactory.annotations.ViewInfo;
+import org.minibus.aqa.main.core.pagefactory.elements.ButtonView;
 import org.minibus.aqa.main.domain.screens.schedule.ScheduleScreen;
 import org.minibus.aqa.main.domain.screens.BaseLoadableScreen;
+import org.openqa.selenium.support.FindBy;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,10 +15,12 @@ import java.util.stream.Collectors;
 
 public class CitiesScreen extends BaseLoadableScreen {
 
-    @AndroidFindBy(xpath = "//android.view.ViewGroup[contains(@resource-id, 'toolbar')]/android.widget.ImageButton[1]")
-    private AndroidElement btnClose;
+    @ViewInfo(name = "Close button",
+            findBy = @FindBy(xpath = "//android.view.ViewGroup[contains(@resource-id, 'toolbar')]/android.widget.ImageButton[1]"))
+    private ButtonView buttonClose;
 
-    private List<CityWidget> cities;
+    @ViewInfo(name = "City item", findBy = @FindBy(id = "ll_city_container"))
+    private List<CityLayout> cities;
 
     private Type type;
 
@@ -37,22 +40,22 @@ public class CitiesScreen extends BaseLoadableScreen {
 
     @Step("Select '{cityName}' city")
     public ScheduleScreen selectCity(final String cityName) {
-        getCityByName(cityName).click();
+        getCityViewByName(cityName).tap();
         ScheduleScreen scheduleScreen = new ScheduleScreen();
         scheduleScreen.isOpened();
         return scheduleScreen;
     }
 
     public List<String> getCities() {
-        return cities.stream().map(CityWidget::getCityName).collect(Collectors.toList());
+        return cities.stream().map(CityLayout::getCityName).collect(Collectors.toList());
     }
 
     public List<String> getRegions() {
-        return cities.stream().map(CityWidget::getRegionName).collect(Collectors.toList());
+        return cities.stream().map(CityLayout::getRegionName).collect(Collectors.toList());
     }
 
-    private CityWidget getCityByName(final String cityName) {
-        Optional<CityWidget> optCity = cities.stream().filter(c -> c.getCityName().equals(cityName)).findFirst();
+    private CityLayout getCityViewByName(final String cityName) {
+        Optional<CityLayout> optCity = cities.stream().filter(c -> c.getCityName().equals(cityName)).findFirst();
         if (optCity.isPresent()) {
             return optCity.get();
         } else {

@@ -11,6 +11,7 @@ import org.minibus.aqa.main.core.helpers.AppInteractionsHelper;
 import org.minibus.aqa.main.core.helpers.MobileCommandHelper;
 import org.minibus.aqa.test.BaseTest;
 import org.minibus.aqa.test.TestGroup;
+import org.openqa.selenium.WebElement;
 import org.testng.ITestContext;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
@@ -62,7 +63,7 @@ public abstract class BaseUiTest extends BaseTest {
         if (AppiumLocalManager.isRunning()) AppiumLocalManager.stop();
     }
 
-    protected AndroidDriver<AndroidElement> getDriver() {
+    protected AndroidDriver<WebElement> getDriver() {
         return Device.getDriver();
     }
 

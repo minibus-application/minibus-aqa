@@ -1,11 +1,10 @@
 package org.minibus.aqa.test.ui;
 
-import net.sf.cglib.core.Local;
 import org.minibus.aqa.main.core.helpers.DatesHelper;
 import org.minibus.aqa.main.core.helpers.RandomHelper;
 import org.minibus.aqa.main.domain.api.models.RouteDTO;
 import org.minibus.aqa.main.domain.screens.cities.CitiesScreen;
-import org.minibus.aqa.main.domain.screens.schedule.ScheduleCalendarWidget;
+import org.minibus.aqa.main.domain.screens.schedule.CalendarLayout;
 import org.minibus.aqa.main.domain.screens.schedule.ScheduleScreen;
 import org.minibus.aqa.test.TestGroup;
 import org.testng.annotations.Test;
@@ -34,7 +33,7 @@ public class ScheduleCalendarTest extends BaseUiTest {
     @Test(groups = {TestGroup.UI},
             description = "When on the Schedule screen then the calendar has 1 day selected by default")
     public void testWhenOnScheduleScreenThenCalendarHasFirstDaySelected() {
-        final int selectedDatePosition = ScheduleCalendarWidget.DEFAULT_SELECTED_DATE_POSITION;
+        final int selectedDatePosition = CalendarLayout.DEFAULT_SELECTED_DATE_POSITION;
 
         ScheduleScreen scheduleScreen = new ScheduleScreen();
         scheduleScreen.waitForLoading();
@@ -73,10 +72,12 @@ public class ScheduleCalendarTest extends BaseUiTest {
         scheduleScreen.waitForLoading();
 
         CitiesScreen departureCitiesScreen = scheduleScreen.openDepartureCitiesScreen();
+        departureCitiesScreen.waitForLoading();
         departureCitiesScreen.selectCity(route.getFrom().getName());
         scheduleScreen.waitForContentLoading();
 
         CitiesScreen arrivalCitiesScreen = scheduleScreen.openArrivalCitiesScreen();
+        arrivalCitiesScreen.waitForLoading();
         arrivalCitiesScreen.selectCity(route.getTo().getName());
         scheduleScreen.waitForContentLoading();
 
@@ -116,10 +117,12 @@ public class ScheduleCalendarTest extends BaseUiTest {
         scheduleScreen.waitForLoading();
 
         CitiesScreen departureCitiesScreen = scheduleScreen.openDepartureCitiesScreen();
+        departureCitiesScreen.waitForLoading();
         departureCitiesScreen.selectCity(route.getFrom().getName());
         scheduleScreen.waitForContentLoading();
 
         CitiesScreen arrivalCitiesScreen = scheduleScreen.openArrivalCitiesScreen();
+        arrivalCitiesScreen.waitForLoading();
         arrivalCitiesScreen.selectCity(route.getTo().getName());
         scheduleScreen.waitForContentLoading();
 

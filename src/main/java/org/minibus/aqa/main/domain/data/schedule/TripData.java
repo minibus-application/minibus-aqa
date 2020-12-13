@@ -6,7 +6,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class TripData {
-
     private String carrier;
     private String carrierRating;
     private String depTime;

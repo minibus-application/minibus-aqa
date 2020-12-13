@@ -2,6 +2,7 @@ package org.minibus.aqa.main.domain.screens;
 
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.AndroidElement;
+import org.openqa.selenium.WebElement;
 
 public interface Screen {
 
@@ -13,5 +14,5 @@ public interface Screen {
 
     String getTitle();
 
-    AndroidDriver<AndroidElement> getDriver();
+    AndroidDriver<WebElement> getDriver();
 }

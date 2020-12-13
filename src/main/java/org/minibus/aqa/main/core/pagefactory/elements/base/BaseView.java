@@ -20,7 +20,7 @@ public abstract class BaseView implements View {
     }
 
     @Override
-    public String getLogicalName() {
+    public String getName() {
         return logicalName;
     }
 

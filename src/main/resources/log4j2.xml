@@ -3,7 +3,7 @@
 
     <Appenders>
         <Console name="STDOUT" target="SYSTEM_OUT">
-            <PatternLayout disableAnsi="false" pattern="%d{ISO8601} %highlight{${LOG_LEVEL_PATTERN:-%5p}}{DEBUG=normal} %style{%thread}{magenta} %style{%-15.18c{1}}{cyan} : %msg%n"/>
+            <PatternLayout disableAnsi="false" pattern="%d{ISO8601} %highlight{${LOG_LEVEL_PATTERN:-%5p}}{DEBUG=normal} %style{%thread}{magenta} %style{%-18.21c{1}}{cyan} : %msg%n"/>
         </Console>
     </Appenders>
 

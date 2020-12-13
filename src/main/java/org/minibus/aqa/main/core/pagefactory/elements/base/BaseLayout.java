@@ -20,7 +20,7 @@ public abstract class BaseLayout implements Layout {
     }
 
     @Override
-    public String getLogicalName() {
+    public String getName() {
         return logicalName;
     }
 

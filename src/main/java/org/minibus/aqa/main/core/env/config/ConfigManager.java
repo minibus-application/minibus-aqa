@@ -8,6 +8,7 @@ import java.util.Objects;
 public class ConfigManager {
 
     private ConfigManager() {
+
     }
 
     public static DeviceConfig getDeviceConfig() {

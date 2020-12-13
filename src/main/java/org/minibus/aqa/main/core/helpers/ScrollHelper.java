@@ -68,18 +68,18 @@ final public class ScrollHelper {
     }
 
     public static boolean scrollToViewByDirection(ScrollDirection byDirection, Rectangle onArea, View toView, Duration withDuration, double withPadding) {
-        if (!toView.isVisible()) {
+        if (!toView.exists()) {
             String pageSourceBeforeScroll;
             LocalDateTime timeout = LocalDateTime.now().plusSeconds(DEFAULT_ELEMENT_SEARCH_TIMEOUT.getSeconds());
 
             do {
                 pageSourceBeforeScroll = Device.getDriver().getPageSource();
                 scrollByDirection(byDirection, onArea, withDuration, withPadding);
-            } while (!toView.isVisible()
+            } while (!toView.exists()
                     && LocalDateTime.now().isBefore(timeout)
                     && !Device.getDriver().getPageSource().equals(pageSourceBeforeScroll));
 
-            return toView.isVisible();
+            return toView.exists();
         } else {
             return true;
         }

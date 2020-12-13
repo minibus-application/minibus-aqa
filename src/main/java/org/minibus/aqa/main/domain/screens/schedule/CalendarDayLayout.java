@@ -1,7 +1,10 @@
-package org.minibus.aqa.main.core.page_factory.elements;
+package org.minibus.aqa.main.domain.screens.schedule;
 
 import org.minibus.aqa.main.Constants;
-import org.minibus.aqa.main.core.page_factory.locators.ViewFindBy;
+import org.minibus.aqa.main.core.pagefactory.annotations.ViewInfo;
+import org.minibus.aqa.main.core.pagefactory.elements.AndroidLayout;
+import org.minibus.aqa.main.core.pagefactory.elements.AndroidView;
+import org.minibus.aqa.main.core.pagefactory.elements.RadioButtonView;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.CacheLookup;
@@ -16,10 +19,10 @@ import java.time.format.TextStyle;
 public class CalendarDayLayout extends AndroidLayout {
 
     @CacheLookup
-    @ViewFindBy(name = "Day of week", findBy = @FindBy(id = "tv_day_of_week"))
+    @ViewInfo(name = "Day of week", findBy = @FindBy(id = "tv_day_of_week"))
     private AndroidView textDayOfWeek;
 
-    @ViewFindBy(name = "Day of month", findBy = @FindBy(id = "rb_month_day"))
+    @ViewInfo(name = "Day of month button", findBy = @FindBy(id = "rb_month_day"))
     private RadioButtonView btnDayOfMonth;
 
     protected static final String DAY_OF_WEEK_PATTERN = "EE";

@@ -5,7 +5,7 @@ import org.minibus.aqa.main.core.pagefactory.elements.base.BaseView;
 import org.minibus.aqa.main.core.pagefactory.elements.base.Layout;
 import org.minibus.aqa.main.core.pagefactory.elements.base.View;
 import org.minibus.aqa.main.core.pagefactory.factories.ViewFactory;
-import org.minibus.aqa.main.core.pagefactory.annotations.ViewFindBy;
+import org.minibus.aqa.main.core.pagefactory.annotations.ViewInfo;
 import org.minibus.aqa.main.core.pagefactory.locators.ViewLocatorFactory;
 import org.minibus.aqa.main.core.pagefactory.handlers.LocatingLayoutListHandler;
 import org.minibus.aqa.main.core.pagefactory.handlers.LocatingViewListHandler;
@@ -49,14 +49,14 @@ public class ViewFieldDecorator implements FieldDecorator {
             } else if (BaseView.class.isAssignableFrom(genericClass)) {
                 return decorateViewList(loader, field, genericClass, locator);
             } else if (BaseLayout.class.isAssignableFrom(genericClass)) {
-                return decorateViewGroupList(loader, field, genericClass, locator);
+                return decorateLayoutList(loader, field, genericClass, locator);
             } else {
                 return null;
             }
         }
 
         if (BaseLayout.class.isAssignableFrom(field.getType())) {
-            return decorateViewGroup(loader, field, locator);
+            return decorateLayout(loader, field, locator);
         }
 
         if (BaseView.class.isAssignableFrom(field.getType())) {
@@ -83,7 +83,7 @@ public class ViewFieldDecorator implements FieldDecorator {
     }
 
     @SuppressWarnings("unchecked")
-    private Object decorateViewGroup(final ClassLoader loader, final Field field, ElementLocator locator) {
+    private Object decorateLayout(final ClassLoader loader, final Field field, ElementLocator locator) {
         final WebElement wrappedElement = proxyForLocator(loader, locator);
         final Layout layout = viewFactory.createInstance(
                 (Class<? extends Layout>) field.getType(), wrappedElement, getFieldLogicalName(field), getFieldBy(field)
@@ -102,7 +102,7 @@ public class ViewFieldDecorator implements FieldDecorator {
     }
 
     @SuppressWarnings("unchecked")
-    private List<Layout> decorateViewGroupList(final ClassLoader loader, Field field, Class<?> genericType, ElementLocator locator) {
+    private List<Layout> decorateLayoutList(final ClassLoader loader, Field field, Class<?> genericType, ElementLocator locator) {
         InvocationHandler handler = new LocatingLayoutListHandler(
                 (Class<? extends Layout>) genericType, locator, getFieldLogicalName(field), getFieldBy(field)
         );
@@ -121,12 +121,12 @@ public class ViewFieldDecorator implements FieldDecorator {
     }
 
     private String getFieldLogicalName(Field field) {
-        ViewFindBy viewAnnotation = field.getAnnotation(ViewFindBy.class);
+        ViewInfo viewAnnotation = field.getAnnotation(ViewInfo.class);
         return viewAnnotation != null ? viewAnnotation.name() : "";
     }
 
     private By getFieldBy(Field field) {
-        ViewFindBy viewAnnotation = field.getAnnotation(ViewFindBy.class);
+        ViewInfo viewAnnotation = field.getAnnotation(ViewInfo.class);
         return viewAnnotation != null ? ViewHelper.resolveFindBy(viewAnnotation.findBy()) : null;
     }
 }

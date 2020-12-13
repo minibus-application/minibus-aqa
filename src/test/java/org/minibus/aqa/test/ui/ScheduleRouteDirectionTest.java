@@ -36,7 +36,7 @@ public class ScheduleRouteDirectionTest extends BaseUiTest {
         RouteDTO foundRoute = RoutesHelper.getRouteByDirection(scheduleScreen.getDirectionData());
 
         test.assertTrue(foundRoute != null, String.format("Default route direction (%s) set up correctly",
-                scheduleScreen.getDirectionData().getDirectionDescription()));
+                scheduleScreen.getDirectionData().getDirectionDesc()));
     }
 
     @Test(groups = {TestGroup.UI},
@@ -93,23 +93,19 @@ public class ScheduleRouteDirectionTest extends BaseUiTest {
         test.assertTrue(scheduleScreen.isOpened(), scheduleScreen.getScreenName() + " screen is opened");
 
         DirectionData actualDirectionData = scheduleScreen.getDirectionData();
-
         scheduleScreen.toggleRouteDirection();
-
         String oldSubtitle = scheduleScreen.getSubtitle();
 
-        test.assertEquals(scheduleScreen.getSubtitle(), actualDirectionData.getDirectionDescription(), "Toolbar subtitle shows an actual direction");
+        test.assertEquals(scheduleScreen.getSubtitle(), actualDirectionData.getDirectionDesc(), "Toolbar subtitle shows an actual direction");
 
         scheduleScreen.toggleRouteDirection();
         scheduleScreen.swapRouteDirection();
         scheduleScreen.waitForContentLoading();
-
         actualDirectionData = scheduleScreen.getDirectionData();
-
         scheduleScreen.toggleRouteDirection();
 
         test.assertNotEquals(scheduleScreen.getSubtitle(), oldSubtitle, "Toolbar subtitle changes");
-        test.assertEquals(scheduleScreen.getSubtitle(), actualDirectionData.getDirectionDescription(), "Toolbar subtitle shows an actual direction");
+        test.assertEquals(scheduleScreen.getSubtitle(), actualDirectionData.getDirectionDesc(), "Toolbar subtitle shows an actual direction");
     }
 
     @Test(groups = {TestGroup.UI},
@@ -123,10 +119,12 @@ public class ScheduleRouteDirectionTest extends BaseUiTest {
         RouteDTO route = RandomHelper.getAny(RoutesHelper.getAllRoutesExceptDepCity(scheduleScreen.getDirectionData().getDepCity()));
 
         CitiesScreen departureCitiesScreen = scheduleScreen.openDepartureCitiesScreen();
+        departureCitiesScreen.waitForLoading();
         departureCitiesScreen.selectCity(route.getFrom().getName());
         scheduleScreen.waitForContentLoading();
 
         CitiesScreen arrivalCitiesScreen = scheduleScreen.openArrivalCitiesScreen();
+        arrivalCitiesScreen.waitForLoading();
         arrivalCitiesScreen.selectCity(route.getTo().getName());
         scheduleScreen.waitForContentLoading();
 

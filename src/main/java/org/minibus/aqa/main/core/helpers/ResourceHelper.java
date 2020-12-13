@@ -18,7 +18,7 @@ public class ResourceHelper {
     private static ResourceHelper instance;
     private List<Path> resources;
 
-    private ResourceHelper(LinkedList<Path> resources) {
+    private ResourceHelper(ArrayList<Path> resources) {
         this.resources = resources;
     }
 
@@ -48,9 +48,9 @@ public class ResourceHelper {
         });
     }
 
-    private static LinkedList<Path> initResources() {
+    private static ArrayList<Path> initResources() {
         final String RESOURCES = "resources";
-        LinkedList<Path> allResourceFilePaths = new LinkedList<>();
+        ArrayList<Path> allResourceFilePaths = new ArrayList<>();
         try {
             Files.walk(Paths.get(Constants.PROJECT_DIR_PATH))
                     .filter(dir -> Files.isDirectory(dir) && dir.getFileName().toString().equals(RESOURCES))
@@ -63,8 +63,8 @@ public class ResourceHelper {
         }
     }
 
-    private static LinkedList<Path> pullOutFiles(Path resourcesDir) {
-        LinkedList<Path> paths = new LinkedList<>();
+    private static ArrayList<Path> pullOutFiles(Path resourcesDir) {
+        ArrayList<Path> paths = new ArrayList<>();
 
         try {
             Files.walkFileTree(resourcesDir, new SimpleFileVisitor<>() {
