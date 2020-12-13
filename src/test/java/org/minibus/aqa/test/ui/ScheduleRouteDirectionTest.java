@@ -65,11 +65,12 @@ public class ScheduleRouteDirectionTest extends BaseUiTest {
 
         test.assertTrue(scheduleScreen.isOpened(), scheduleScreen.getScreenName() + " screen is opened");
 
-        RouteDTO route = RandomHelper.getAny(RoutesHelper.getAllRoutesExceptDepCity(scheduleScreen.getDirectionData().getDepCity()));
+        RouteDTO route = RandomHelper.getAny(RoutesHelper.getAllRoutesExceptDirection(scheduleScreen.getDirectionData()));
 
         DirectionData oldDirectionData = scheduleScreen.getDirectionData();
 
         CitiesScreen departureCitiesScreen = scheduleScreen.openDepartureCitiesScreen();
+        departureCitiesScreen.waitForLoading();
         departureCitiesScreen.selectCity(route.getFrom().getName());
         scheduleScreen.waitForContentLoading();
 
@@ -77,6 +78,7 @@ public class ScheduleRouteDirectionTest extends BaseUiTest {
         test.assertEquals(scheduleScreen.getDirectionData().getArrCity(), oldDirectionData.getArrCity(), "Arrival city stays with the old value");
 
         CitiesScreen arrivalCitiesScreen = scheduleScreen.openArrivalCitiesScreen();
+        arrivalCitiesScreen.waitForLoading();
         arrivalCitiesScreen.selectCity(route.getTo().getName());
         scheduleScreen.waitForContentLoading();
 
@@ -139,6 +141,7 @@ public class ScheduleRouteDirectionTest extends BaseUiTest {
 
         AppInteractionsHelper.openAppUnderTest(getDriver());
 
+        scheduleScreen.isOpened();
         scheduleScreen.waitForContentLoading();
 
         DirectionData restoredDirectionData = scheduleScreen.getDirectionData();

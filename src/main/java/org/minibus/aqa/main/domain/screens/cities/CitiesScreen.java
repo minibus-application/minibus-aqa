@@ -59,7 +59,7 @@ public class CitiesScreen extends BaseLoadableScreen {
         if (optCity.isPresent()) {
             return optCity.get();
         } else {
-            throw new RuntimeException(cityName + " city is not found in the list");
+            throw new IllegalArgumentException(cityName + " city is not found in the list");
         }
     }
 

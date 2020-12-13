@@ -11,7 +11,7 @@
 
     <test name="API Test">
         <packages>
-            <package name="org.minibus.aqa.test.api"/>
+            <package name="org.minibus.aqa.test.api.*"/>
         </packages>
     </test>
 </suite>

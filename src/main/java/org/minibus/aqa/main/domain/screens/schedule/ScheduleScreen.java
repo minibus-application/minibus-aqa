@@ -12,6 +12,8 @@ import org.minibus.aqa.main.domain.screens.BaseLoadableScreen;
 import org.minibus.aqa.main.domain.screens.cities.CitiesScreen;
 import org.openqa.selenium.support.FindBy;
 
+import java.time.LocalDateTime;
+
 
 public class ScheduleScreen extends BaseLoadableScreen {
 
@@ -102,6 +104,11 @@ public class ScheduleScreen extends BaseLoadableScreen {
     }
 
     public DirectionData getDirectionData() {
+        LocalDateTime endTime = LocalDateTime.now().plusSeconds(getElementTimeout());
+        do {
+            if (isRouteDirectionExpanded()) break;
+        } while(LocalDateTime.now().isBefore(endTime));
+
         return new DirectionData(fieldDepartureCity.getText(), fieldArrivalCity.getText());
     }
 
